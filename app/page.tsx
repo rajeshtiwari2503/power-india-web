@@ -691,66 +691,177 @@ const CAREERS = [
 
 // ─── STAT COUNTER ────────────────────────────────────────────────────────────
 
-function StatCounter({ end, suffix = '' }) {
-  const [count, setCount] = useState(0)
-  const ref = useRef(null)
-  const started = useRef(false)
+// function StatCounter({ end, suffix = '' }) {
+//   const [count, setCount] = useState(0)
+//   const ref = useRef(null)
+//   const started = useRef(false)
+
+//   useEffect(() => {
+//     const observer = new IntersectionObserver(([entry]) => {
+//       if (entry.isIntersecting && !started.current) {
+//         started.current = true
+//         let start = 0
+//         const duration = 2000
+//         const step = end / (duration / 16)
+//         const timer = setInterval(() => {
+//           start += step
+//           if (start >= end) { setCount(end); clearInterval(timer) }
+//           else setCount(Math.floor(start))
+//         }, 16)
+//       }
+//     }, { threshold: 0.5 })
+//     if (ref.current) observer.observe(ref.current)
+//     return () => observer.disconnect()
+//   }, [end])
+
+//   return <span ref={ref}>{count}{suffix}</span>
+// }
+
+ 
+
+interface StatCounterProps {
+  end: number;
+  suffix?: string;
+}
+
+ function StatCounter({ end, suffix = "" }: StatCounterProps) {
+  const [count, setCount] = useState<number>(0);
+
+  const ref = useRef<HTMLSpanElement | null>(null);
+  const started = useRef<boolean>(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !started.current) {
-        started.current = true
-        let start = 0
-        const duration = 2000
-        const step = end / (duration / 16)
-        const timer = setInterval(() => {
-          start += step
-          if (start >= end) { setCount(end); clearInterval(timer) }
-          else setCount(Math.floor(start))
-        }, 16)
-      }
-    }, { threshold: 0.5 })
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [end])
+    const element = ref.current;
+    if (!element) return;
 
-  return <span ref={ref}>{count}{suffix}</span>
+    let timer: NodeJS.Timeout;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+
+          let start = 0;
+          const duration = 2000;
+          const step = end / (duration / 16);
+
+          timer = setInterval(() => {
+            start += step;
+
+            if (start >= end) {
+              setCount(end);
+              clearInterval(timer);
+            } else {
+              setCount(Math.floor(start));
+            }
+          }, 16);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+      if (timer) clearInterval(timer);
+    };
+  }, [end]);
+
+  return (
+    <span ref={ref}>
+      {count}
+      {suffix}
+    </span>
+  );
 }
-
 // ─── FAQ ITEM ────────────────────────────────────────────────────────────────
 
-function FaqItem({ q, a, idx }) {
-  const [open, setOpen] = useState(false)
-  return (
-    <div style={{
-      border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden',
-      transition: 'box-shadow 0.3s',
-      boxShadow: open ? '0 8px 24px rgba(55,48,163,0.1)' : 'none',
-      marginBottom: '12px',
-    }}>
-      <button
-        onClick={() => setOpen(!open)}
-        style={{
-          width: '100%', textAlign: 'left', padding: '20px 24px',
-          background: open ? 'linear-gradient(135deg,#3730a3,#7c3aed)' : '#fff',
-          border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          transition: 'background 0.3s',
-        }}
-      >
-        <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: '15px', fontWeight: 600, color: open ? '#fff' : '#1e293b' }}>
-          {q}
-        </span>
-        <span style={{ fontSize: '20px', color: open ? '#fcd34d' : '#7c3aed', transition: 'transform 0.3s', transform: open ? 'rotate(45deg)' : 'none' }}>+</span>
-      </button>
-      {open && (
-        <div style={{ padding: '18px 24px', background: '#f8fafc', fontSize: '14px', color: '#475569', lineHeight: 1.75 }}>
-          {a}
-        </div>
-      )}
-    </div>
-  )
+// function FaqItem({ q, a, idx }) {
+//   const [open, setOpen] = useState(false)
+//   return (
+//     <div style={{
+//       border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden',
+//       transition: 'box-shadow 0.3s',
+//       boxShadow: open ? '0 8px 24px rgba(55,48,163,0.1)' : 'none',
+//       marginBottom: '12px',
+//     }}>
+//       <button
+//         onClick={() => setOpen(!open)}
+//         style={{
+//           width: '100%', textAlign: 'left', padding: '20px 24px',
+//           background: open ? 'linear-gradient(135deg,#3730a3,#7c3aed)' : '#fff',
+//           border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+//           transition: 'background 0.3s',
+//         }}
+//       >
+//         <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: '15px', fontWeight: 600, color: open ? '#fff' : '#1e293b' }}>
+//           {q}
+//         </span>
+//         <span style={{ fontSize: '20px', color: open ? '#fcd34d' : '#7c3aed', transition: 'transform 0.3s', transform: open ? 'rotate(45deg)' : 'none' }}>+</span>
+//       </button>
+//       {open && (
+//         <div style={{ padding: '18px 24px', background: '#f8fafc', fontSize: '14px', color: '#475569', lineHeight: 1.75 }}>
+//           {a}
+//         </div>
+//       )}
+//     </div>
+//   )
+// }
+ 
+
+interface FaqItemProps {
+  q: string;
+  a: string;
+  idx?: number;
 }
 
+  function FaqItem({ q, a }: FaqItemProps) {
+  const [open, setOpen] = useState<boolean>(false);
+
+  return (
+    <div
+      className={`border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 ${
+        open ? "shadow-lg shadow-indigo-200/50" : ""
+      }`}
+    >
+      {/* QUESTION */}
+      <button
+        onClick={() => setOpen(!open)}
+        className={`w-full flex justify-between items-center px-6 py-5 text-left transition-all duration-300 ${
+          open
+            ? "bg-gradient-to-r from-indigo-700 to-purple-600 text-white"
+            : "bg-white hover:bg-gray-50"
+        }`}
+      >
+        <span className="text-sm md:text-base font-semibold">
+          {q}
+        </span>
+
+        <span
+          className={`text-xl font-bold transition-transform duration-300 ${
+            open ? "rotate-45 text-yellow-300" : "text-purple-600"
+          }`}
+        >
+          +
+        </span>
+      </button>
+
+      {/* ANSWER */}
+      <div
+        className={`grid transition-all duration-300 ${
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="px-6 py-4 bg-gray-50 text-sm text-gray-600 leading-relaxed">
+            {a}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 export default function Home() {
