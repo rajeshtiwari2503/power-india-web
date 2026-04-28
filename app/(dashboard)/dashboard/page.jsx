@@ -1,4 +1,4 @@
- 
+ export const dynamic = "force-dynamic";
 import { connectDB } from "../../../lib/db";
 import { Lead, Client, Certification, Task, Invoice } from "../../../models";
 import DashboardClient from "./DashboardClient";

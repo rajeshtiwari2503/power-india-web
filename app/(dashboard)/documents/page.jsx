@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { connectDB } from "@/lib/db";
 import { Client, Certification } from "@/models";
 import DocumentsClient from "./DocumentsClient";

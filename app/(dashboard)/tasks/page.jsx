@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { connectDB } from "@/lib/db";
 import { Task } from "@/models";
 import TasksClient from "./TasksClient";

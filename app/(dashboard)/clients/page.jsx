@@ -1,4 +1,5 @@
 // app/(dashboard)/clients/page.jsx
+export const dynamic = "force-dynamic";
 import { connectDB } from "../../../lib/db";
  
 import { Client } from "../../../models";

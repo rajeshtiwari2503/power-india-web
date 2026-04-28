@@ -1,3 +1,5 @@
+
+export const dynamic = "force-dynamic";
 import { connectDB } from "@/lib/db";
 import { Invoice } from "@/models";
 import FinanceClient from "./FinanceClient";
