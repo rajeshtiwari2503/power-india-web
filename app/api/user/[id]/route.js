@@ -1,13 +1,13 @@
 import { connectDB } from "@/lib/db";
-import { auth } from "@/auth";
+// import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
 export async function PATCH(req, { params }) {
-  const session = await auth();
-  if (!session || session.user.role !== "Admin") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // const session = await auth();
+  // if (!session || session.user.role !== "Admin") {
+  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // }
 
   await connectDB();
   const User = mongoose.models.User;
