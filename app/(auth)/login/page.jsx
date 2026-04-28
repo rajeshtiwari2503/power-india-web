@@ -20,6 +20,13 @@ export default function LoginPage() {
       password: form.password,
       redirect: false,
     });
+//    const res =  await signIn("credentials", {
+//   email,
+//   password,
+//   // redirect: true,
+//    redirect: false,
+//   callbackUrl: "/dashboard",
+// });
 console.log("res",res);
 
     if (res?.error) {
