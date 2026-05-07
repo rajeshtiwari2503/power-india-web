@@ -1,0 +1,82 @@
+ import { connectDB } from "@/lib/db";
+import { NextResponse } from "next/server";
+import mongoose from "mongoose";
+import { error, success } from "@/lib/api-response";
+
+// NOTE: uncomment when auth is ready
+// import { auth } from "@/auth";
+
+type Params = {
+  params: {
+    id: string;
+  };
+};
+
+export async function PATCH(req: Request, { params }: Params) {
+  try {
+    await connectDB();
+
+    const User = mongoose.models.User;
+    const body = await req.json();
+
+    // const session = await auth();
+
+    // if (!session || session.user.role !== "Admin") {
+    //   return error("Unauthorized", 401);
+    // }
+
+    // Prevent self role downgrade (FIXED - session issue was here)
+    // if (
+    //   params.id === session.user.id &&
+    //   body.role &&
+    //   body.role !== "Admin"
+    // ) {
+    //   return error("Cannot change your own admin role", 400);
+    // }
+
+    const user = await User.findByIdAndUpdate(
+      params.id,
+      body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).select("-password");
+
+    if (!user) {
+      return error("User not found", 404);
+    }
+
+    return success(user);
+  } catch (err) {
+    return error("Failed to update user");
+  }
+}
+
+export async function DELETE(_: Request, { params }: Params) {
+  try {
+    await connectDB();
+
+    const User = mongoose.models.User;
+
+    // const session = await auth();
+
+    // if (!session || session.user.role !== "Admin") {
+    //   return error("Unauthorized", 401);
+    // }
+
+    // if (params.id === session.user.id) {
+    //   return error("Cannot delete yourself", 400);
+    // }
+
+    const user = await User.findByIdAndDelete(params.id);
+
+    if (!user) {
+      return error("User not found", 404);
+    }
+
+    return success({ deleted: true });
+  } catch (err) {
+    return error("Failed to delete user");
+  }
+}
