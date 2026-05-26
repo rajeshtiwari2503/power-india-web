@@ -1,6 +1,7 @@
  "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { apiFetch, ApiError } from "@/lib/api-client";
 
 type NotificationType =
   | "renewal"
@@ -54,17 +55,26 @@ export default function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const ref = useRef<HTMLDivElement | null>(null);
 
   const fetchNotifications = async () => {
     setLoading(true);
+    setError("");
     try {
-      const res = await fetch("/api/notifications?limit=15");
-      const data = await res.json();
+      const data = await apiFetch<any>("/api/notifications?limit=15");
       setNotifications(data.notifications || []);
       setUnreadCount(data.unreadCount || 0);
-    } catch {}
+    } catch (err) {
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        setNotifications([]);
+        setUnreadCount(0);
+        setError("Session expired. Please login again.");
+      } else {
+        setError("Failed to load notifications.");
+      }
+    }
     setLoading(false);
   };
 
@@ -85,23 +95,29 @@ export default function NotificationBell() {
   }, []);
 
   const markRead = async (id: string) => {
-    await fetch(`/api/notifications/${id}`, { method: "PATCH" });
-    setNotifications((n) =>
-      n.map((x) => (x._id === id ? { ...x, isRead: true } : x))
-    );
-    setUnreadCount((c) => Math.max(0, c - 1));
+    try {
+      await apiFetch(`/api/notifications/${id}`, { method: "PATCH" });
+      setNotifications((n) =>
+        n.map((x) => (x._id === id ? { ...x, isRead: true } : x))
+      );
+      setUnreadCount((c) => Math.max(0, c - 1));
+    } catch {}
   };
 
   const markAllRead = async () => {
-    await fetch("/api/notifications/all", { method: "PATCH" });
-    setNotifications((n) => n.map((x) => ({ ...x, isRead: true })));
-    setUnreadCount(0);
+    try {
+      await apiFetch("/api/notifications/all", { method: "PATCH" });
+      setNotifications((n) => n.map((x) => ({ ...x, isRead: true })));
+      setUnreadCount(0);
+    } catch {}
   };
 
   const deleteNotif = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    await fetch(`/api/notifications/${id}`, { method: "DELETE" });
-    setNotifications((n) => n.filter((x) => x._id !== id));
+    try {
+      await apiFetch(`/api/notifications/${id}`, { method: "DELETE" });
+      setNotifications((n) => n.filter((x) => x._id !== id));
+    } catch {}
   };
 
   return (
@@ -153,6 +169,11 @@ export default function NotificationBell() {
 
           {/* List */}
           <div className="max-h-[420px] overflow-y-auto">
+            {error && (
+              <div className="p-3 text-sm text-red-600 bg-red-50 border-b border-red-100">
+                {error}
+              </div>
+            )}
             {loading && notifications.length === 0 ? (
               <div className="p-8 text-center text-slate-400">Loading...</div>
             ) : notifications.length === 0 ? (

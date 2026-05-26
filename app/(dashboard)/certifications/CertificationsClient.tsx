@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch, ApiError } from "@/lib/api-client";
 
 /* =========================
    CONSTANTS
@@ -136,20 +137,23 @@ function AddCertModal({
   });
 
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setError("");
 
-    const res = await fetch("/api/certifications", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-
-    if (res.ok) {
+    try {
+      await apiFetch("/api/certifications", { method: "POST", body: form });
       onSave();
       onClose();
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : "Failed to create certification. Please try again.";
+      setError(message);
     }
 
     setSaving(false);
@@ -241,6 +245,12 @@ function AddCertModal({
               {saving ? "Saving..." : "Create"}
             </button>
           </div>
+
+          {error && (
+            <div className="col-span-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
         </form>
       </div>
     </div>
@@ -259,6 +269,7 @@ export default function CertificationsClient({
   const [certs] = useState(initialCerts);
   const [view, setView] = useState<"table" | "cards">("table");
   const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState("");
 
   const filtered = certs;
 
@@ -350,6 +361,12 @@ export default function CertificationsClient({
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {error && (
+        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
         </div>
       )}
 

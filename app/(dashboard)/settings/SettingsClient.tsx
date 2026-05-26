@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch, ApiError } from "@/lib/api-client";
 
 /* ---------------- TYPES ---------------- */
 
@@ -63,18 +64,16 @@ function AddUserModal({
     setSaving(true);
     setError("");
 
-    const res = await fetch("/api/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-
-    if (res.ok) {
+    try {
+      await apiFetch("/api/users", { method: "POST", body: form });
       onSave();
       onClose();
-    } else {
-      const data = await res.json();
-      setError(data.error || "Failed to create user");
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : "Failed to create user. Please try again.";
+      setError(message);
     }
 
     setSaving(false);
@@ -173,30 +172,42 @@ export default function SettingsClient({
 
   const [showModal, setShowModal] = useState(false);
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
   /* -------- ROLE CHANGE -------- */
   const handleRoleChange = async (id: string, role: Role) => {
     setUpdatingRole(id);
+    setError("");
 
-    await fetch(`/api/users/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role }),
-    });
-
-    router.refresh();
+    try {
+      await apiFetch(`/api/users/${id}`, { method: "PATCH", body: { role } });
+      router.refresh();
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : "Failed to update role. Please try again.";
+      setError(message);
+    }
     setUpdatingRole(null);
   };
 
   /* -------- TOGGLE ACTIVE -------- */
   const handleToggleActive = async (id: string, isActive: boolean) => {
-    await fetch(`/api/users/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isActive: !isActive }),
-    });
-
-    router.refresh();
+    setError("");
+    try {
+      await apiFetch(`/api/users/${id}`, {
+        method: "PATCH",
+        body: { isActive: !isActive },
+      });
+      router.refresh();
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : "Failed to update user. Please try again.";
+      setError(message);
+    }
   };
 
   return (
@@ -227,6 +238,12 @@ export default function SettingsClient({
           ))}
         </div>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       {/* USERS TABLE */}
       <div className="bg-white border rounded-xl overflow-hidden">

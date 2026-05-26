@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch, ApiError } from "@/lib/api-client";
 
 const SERVICES = ["BIS-CRS","BIS-ISI","WPC-ETA","EPR","LMPC","CDSCO","ISO","BEE","Other"];
 const SOURCES = ["Website","LinkedIn","Referral","Google","WhatsApp","Cold Call","Other"];
@@ -35,20 +36,23 @@ function LeadModal({
   });
 
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setSaving(true);
+    setError("");
 
-    const res = await fetch("/api/leads", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-
-    if (res.ok) {
+    try {
+      await apiFetch("/api/leads", { method: "POST", body: form });
       onSave();
       onClose();
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : "Failed to create lead. Please try again.";
+      setError(message);
     }
 
     setSaving(false);
@@ -123,6 +127,12 @@ function LeadModal({
             className="w-full border rounded-lg p-2"
           />
 
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
@@ -154,6 +164,7 @@ export default function LeadsClient({ leads }: { leads: Lead[] }) {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterPriority, setFilterPriority] = useState("");
+  const [error, setError] = useState("");
 
   const filtered = leads.filter((l) => {
     const matchSearch =
@@ -169,13 +180,17 @@ export default function LeadsClient({ leads }: { leads: Lead[] }) {
   });
 
   const handleStatusChange = async (id: string, status: string) => {
-    await fetch(`/api/leads/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-
-    router.refresh();
+    setError("");
+    try {
+      await apiFetch(`/api/leads/${id}`, { method: "PATCH", body: { status } });
+      router.refresh();
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : "Failed to update lead. Please try again.";
+      setError(message);
+    }
   };
 
   const handleProposal = (lead: Lead) => {
@@ -236,6 +251,12 @@ export default function LeadsClient({ leads }: { leads: Lead[] }) {
           ))}
         </select>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       {/* TABLE */}
       <div className="bg-white border rounded-xl overflow-hidden">

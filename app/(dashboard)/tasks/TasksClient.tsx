@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch, ApiError } from "@/lib/api-client";
 
 type Priority = "High" | "Medium" | "Low";
 type Status = "Pending" | "In Progress" | "Completed";
@@ -39,6 +40,7 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
   const [showModal, setShowModal] = useState(false);
   const [view, setView] = useState<"list" | "kanban">("list");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const [form, setForm] = useState({
     title: "",
@@ -50,31 +52,38 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setError("");
 
-    const res = await fetch("/api/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-
-    if (res.ok) {
+    try {
+      await apiFetch("/api/tasks", { method: "POST", body: form });
       router.refresh();
       setShowModal(false);
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : "Failed to create task. Please try again.";
+      setError(message);
     }
 
     setSaving(false);
   };
 
   const updateStatus = async (taskId: string, status: Status) => {
-    await fetch(`/api/tasks/${taskId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
+    setError("");
+    const prev = tasks;
+    setTasks((p) => p.map((t) => (t._id === taskId ? { ...t, status } : t)));
 
-    setTasks((prev) =>
-      prev.map((t) => (t._id === taskId ? { ...t, status } : t))
-    );
+    try {
+      await apiFetch(`/api/tasks/${taskId}`, { method: "PATCH", body: { status } });
+    } catch (err) {
+      setTasks(prev); // rollback optimistic update
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : "Failed to update task. Please try again.";
+      setError(message);
+    }
   };
 
   const overdue = tasks.filter(
@@ -116,6 +125,12 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
           </button>
         </div>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       {/* KANBAN VIEW */}
       {view === "kanban" ? (
@@ -310,6 +325,12 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
                 setForm({ ...form, notes: e.target.value })
               }
             />
+
+            {error && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
 
             <div className="flex justify-end gap-2">
               <button

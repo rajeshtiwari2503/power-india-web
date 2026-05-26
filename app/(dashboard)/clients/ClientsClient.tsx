@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch, ApiError } from "@/lib/api-client";
 
 /* =========================
    CONSTANTS
@@ -63,6 +64,7 @@ function AddClientModal({
   });
 
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const toggleService = (svc: string) => {
     setForm((prev) => ({
@@ -76,19 +78,24 @@ function AddClientModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setError("");
 
-    const res = await fetch("/api/clients", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        emails: form.email ? [form.email] : [],
-      }),
-    });
-
-    if (res.ok) {
+    try {
+      await apiFetch("/api/clients", {
+        method: "POST",
+        body: {
+          ...form,
+          emails: form.email ? [form.email] : [],
+        },
+      });
       onSave();
       onClose();
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : "Failed to create client. Please try again.";
+      setError(message);
     }
 
     setSaving(false);
@@ -198,6 +205,12 @@ function AddClientModal({
           </div>
 
           {/* ACTIONS */}
+          {error && (
+            <div className="col-span-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
           <div className="col-span-2 flex justify-end gap-2 mt-2">
             <button
               type="button"
@@ -235,6 +248,7 @@ export default function ClientsClient({
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
+  const [error, setError] = useState("");
 
   const filtered = clients.filter((c) => {
     const matchSearch =
@@ -288,6 +302,12 @@ export default function ClientsClient({
           ))}
         </select>
       </div>
+
+      {error && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       {/* GRID */}
       <div className="grid md:grid-cols-3 gap-4">
