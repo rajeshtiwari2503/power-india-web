@@ -98,22 +98,23 @@
 import { motion } from "framer-motion"
 import ContactForm from "./ui/Contactform"
 
+// Highlight your real certification services
 const CATS = [
-  { icon: '⚡', label: 'New\nConnections' },
-  { icon: '☀️', label: 'Solar\nEnergy' },
-  { icon: '🏭', label: 'Industrial\nPower' },
-  { icon: '📊', label: 'Energy\nAudit' },
-  { icon: '📋', label: 'Billing &\nCompliance' },
-  { icon: '🔧', label: 'Maintenance\nAMC' },
-  { icon: '🔋', label: 'Green\nEnergy' },
-  { icon: '🔌', label: 'Load\nEnhancement' },
+  { icon: '🛡️', label: 'BIS\nRegistration' },
+  { icon: '📡', label: 'WPC–ETA\nApproval' },
+  { icon: '⭐', label: 'BEE Star\nRating' },
+  { icon: '📶', label: 'TEC\nCertification' },
+  { icon: '♻️', label: 'EPR / Waste\nManagement' },
+  { icon: '⚖️', label: 'LMPC / Legal\nMetrology' },
+  { icon: '📑', label: 'ISO / CE /\nRoHS' },
+  { icon: '🔬', label: 'EMC / EMI /\nNABL Testing' },
 ]
 
 const STATS = [
   { icon: '😊', num: '5K+', label: 'Happy Clients' },
-  { icon: '🏆', num: '50+', label: 'Professional Services' },
+  { icon: '🏆', num: '50+', label: 'Certification & Lab Services' },
   { icon: '⭐', num: '600+', label: '5-Star Reviews' },
-  { icon: '💬', num: '10K+', label: 'Questions Solved' },
+  { icon: '💬', num: '10K+', label: 'Queries Resolved' },
 ]
 
 export default function HeroSection() {
@@ -148,39 +149,42 @@ export default function HeroSection() {
           <div className="inline-flex items-center gap-2 bg-white border border-orange-100 shadow-lg shadow-orange-100/40 rounded-full px-5 py-2 mb-6 backdrop-blur-xl">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-ping" />
             <span className="text-sm font-semibold text-slate-700">
-              India’s Trusted Utility Partner
+              India’s Trusted Certification Partner
             </span>
           </div>
 
           {/* heading */}
           <h1 className="text-5xl md:text-6xl font-black leading-[1.05] text-slate-900 tracking-tight">
-            Smart Power
+            Compliance &
             <br />
             <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
-              Utility Solutions
+              Certification Services
             </span>
             <br />
-            For Modern India
+            For Indian Market Entry
           </h1>
 
           {/* desc */}
           <p className="mt-6 text-lg leading-8 text-slate-600 max-w-2xl">
-            Fast, affordable and seamless electricity solutions for homes,
-            startups, industries and enterprises with expert support,
-            compliance assistance and smart energy management.
+            Power India Services helps you obtain BIS, WPC, BEE, TEC, ISO,
+            EPR/LMPC, RoHS and other Indian approvals end‑to‑end – documentation,
+            testing, filing and liaisoning – so you can launch and grow faster.
           </p>
 
           {/* buttons */}
           <div className="flex flex-wrap gap-4 mt-8">
             <button className="relative overflow-hidden group bg-gradient-to-r from-orange-500 to-amber-500 text-white px-7 py-4 rounded-2xl font-semibold shadow-xl shadow-orange-300/40 hover:scale-105 transition-all duration-300">
-              <span className="relative z-10">Get Started</span>
+              <span className="relative z-10">Get Certification Roadmap</span>
 
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
             </button>
 
-            <button className="bg-white border border-slate-200 text-slate-700 px-7 py-4 rounded-2xl font-semibold hover:border-orange-300 hover:shadow-xl hover:shadow-orange-100 transition-all duration-300">
-              Explore Services
-            </button>
+            <a
+              href="#services"
+              className="bg-white border border-slate-200 text-slate-700 px-7 py-4 rounded-2xl font-semibold hover:border-orange-300 hover:shadow-xl hover:shadow-orange-100 transition-all duration-300"
+            >
+              View All Certifications
+            </a>
           </div>
 
           {/* Categories */}
