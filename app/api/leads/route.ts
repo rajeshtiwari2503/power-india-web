@@ -1,10 +1,16 @@
  import { connectDB } from "@/lib/db";
 import { Lead } from "@/models";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
 // GET all leads
 export async function GET() {
   try {
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     await connectDB();
 
     const leads = await Lead.find()
@@ -26,6 +32,11 @@ export async function GET() {
 // CREATE lead
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     await connectDB();
 
     const body = await req.json();

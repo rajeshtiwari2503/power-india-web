@@ -3,6 +3,7 @@ import { Client } from "@/models";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
+import { auth } from "@/lib/auth";
 
 /**
  * ---------------------------
@@ -37,6 +38,9 @@ const error = (message: string, status = 400) =>
  */
 export async function GET(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session) return error("Unauthorized", 401);
+
     await connectDB();
 
     const { searchParams } = new URL(req.url);
@@ -93,6 +97,9 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session) return error("Unauthorized", 401);
+
     await connectDB();
 
     const body = await req.json();

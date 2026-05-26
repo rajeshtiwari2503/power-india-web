@@ -1,5 +1,6 @@
- import { connectDB } from "@/lib/db";
-import { Certification } from "@/models";
+import { connectDB } from "@/lib/db";
+import { Notification } from "@/models/Notification";
+import { auth } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 type Params = {
@@ -9,21 +10,24 @@ type Params = {
 // PATCH
 export async function PATCH(req: NextRequest, { params }: Params) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     await connectDB();
 
-    const body = await req.json();
+    const updated = await Notification.findOneAndUpdate(
+      { _id: params.id, userId: session.user.id },
+      { $set: { isRead: true } },
+      { new: true }
+    ).lean();
 
-    const cert = await Certification.findByIdAndUpdate(
-      params.id,
-      { $set: body },
-      { new: true, runValidators: true }
-    );
-
-    if (!cert) {
+    if (!updated) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, data: cert });
+    return NextResponse.json({ success: true, notification: updated });
   } catch (error) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
@@ -32,11 +36,19 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 // DELETE
 export async function DELETE(req: NextRequest, { params }: Params) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     await connectDB();
 
-    const cert = await Certification.findByIdAndDelete(params.id);
+    const deleted = await Notification.findOneAndDelete({
+      _id: params.id,
+      userId: session.user.id,
+    }).lean();
 
-    if (!cert) {
+    if (!deleted) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 

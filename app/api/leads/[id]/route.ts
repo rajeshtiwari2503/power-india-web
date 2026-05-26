@@ -1,6 +1,7 @@
  import { connectDB } from "@/lib/db";
 import { Lead } from "@/models";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
 type Params = {
   params: {
@@ -11,6 +12,11 @@ type Params = {
 // PATCH - Update Lead
 export async function PATCH(req: NextRequest, { params }: Params) {
   try {
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     await connectDB();
 
     const body = await req.json();
@@ -46,6 +52,11 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 // DELETE - Remove Lead
 export async function DELETE(req: NextRequest, { params }: Params) {
   try {
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     await connectDB();
 
     const lead = await Lead.findByIdAndDelete(params.id);

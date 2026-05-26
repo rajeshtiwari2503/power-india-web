@@ -2,6 +2,7 @@
 import { Task } from "@/models";
 import { NextResponse } from "next/server";
 import { error, success } from "@/lib/api-response";
+import { auth } from "@/lib/auth";
 
 type Params = {
   params: {
@@ -11,6 +12,9 @@ type Params = {
 
 export async function PATCH(req: Request, { params }: Params) {
   try {
+    const session = await auth();
+    if (!session) return error("Unauthorized", 401);
+
     await connectDB();
 
     const body = await req.json();

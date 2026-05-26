@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import mongoose from "mongoose";
 import { z } from "zod";
+import { auth } from "@/lib/auth";
 
 /**
  * ---------------------------
@@ -38,6 +39,9 @@ const error = (message: string, status = 400) =>
  */
 export async function GET(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session) return error("Unauthorized", 401);
+
     await connectDB();
 
     const { searchParams } = new URL(req.url);
@@ -93,25 +97,29 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session) return error("Unauthorized", 401);
+
     await connectDB();
 
     const body = await req.json();
 
-    // Validate input
-    // const parsed = createCertificationSchema.safeParse(body);
+    const parsed = createCertificationSchema.safeParse(body);
+    if (!parsed.success) {
+      return error(parsed.error.issues[0].message, 422);
+    }
 
-    // if (!parsed.success) {
-    //   return error(parsed.error.issues[0].message, 422);
-    // }
+    // NOTE: frontend sends `clientId` as a string; model expects `client` ObjectId.
+    const clientId = (body as any)?.clientId;
+    if (!clientId || !mongoose.Types.ObjectId.isValid(String(clientId))) {
+      return error("Invalid clientId", 400);
+    }
 
-    // Validate ObjectId
-    // if (!mongoose.Types.ObjectId.isValid(parsed.data.clientId)) {
-    //   return error("Invalid client ID", 400);
-    // }
-
-    const cert = await Certification.create(
-     body
-    );
+    const cert = await Certification.create({
+      ...parsed.data,
+      ...body,
+      client: clientId,
+    });
 
     return success(cert, 201);
   } catch (err) {
