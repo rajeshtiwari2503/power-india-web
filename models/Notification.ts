@@ -35,6 +35,12 @@ const notificationSchema = new mongoose.Schema(
     relatedModel: {
       type: String, // "Certification", "Lead", "Task"
     },
+
+    /**
+     * Used for idempotency (cron / reminders).
+     * When present, we ensure uniqueness per user.
+     */
+    dedupeKey: { type: String },
   },
   { timestamps: true }
 );
@@ -47,6 +53,12 @@ notificationSchema.index({
   isRead: 1,
   createdAt: -1,
 });
+
+// Avoid duplicate notifications per user+key (sparse allows null/undefined).
+notificationSchema.index(
+  { userId: 1, dedupeKey: 1 },
+  { unique: true, sparse: true }
+);
 
 // =========================
 // TypeScript Type

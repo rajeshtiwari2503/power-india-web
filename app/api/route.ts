@@ -1,6 +1,10 @@
- export const runtime = "nodejs"; 
-// 🔥 Important: prevents Edge runtime issues (ReflectApply, crypto, etc.)
+export const runtime = "nodejs";
 
-import { handlers } from "@/lib/auth";
+import { NextResponse } from "next/server";
 
-export const { GET, POST } = handlers;
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    service: "power-india-web",
+  });
+}

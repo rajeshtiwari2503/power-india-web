@@ -1,4 +1,4 @@
- import { connectDB } from "@/lib/db-connect";
+import { connectDB } from "@/lib/db";
 import { Certification } from "@/models";
 import { error, success } from "@/lib/api-response";
 

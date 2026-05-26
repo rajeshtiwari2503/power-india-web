@@ -248,11 +248,21 @@ const notificationSchema = new mongoose.Schema(
 
     relatedId: mongoose.Schema.Types.ObjectId,
     relatedModel: String,
+
+    /**
+     * Used for idempotency (cron / reminders).
+     * When present, we ensure uniqueness per user.
+     */
+    dedupeKey: { type: String },
   },
   { timestamps: true }
 );
 
 notificationSchema.index({ userId: 1, isRead: 1, createdAt: -1 });
+notificationSchema.index(
+  { userId: 1, dedupeKey: 1 },
+  { unique: true, sparse: true }
+);
 
 export const Notification =
   mongoose.models.Notification || mongoose.model("Notification", notificationSchema);
