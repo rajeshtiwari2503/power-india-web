@@ -1,7 +1,8 @@
  import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
-import User from "@/models/User";
+import { User } from "@/models";
+ 
 
 export const runtime = "nodejs"; // important for bcrypt + mongoose
 

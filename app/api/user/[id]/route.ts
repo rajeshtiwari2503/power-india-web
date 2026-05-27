@@ -1,5 +1,5 @@
  import { connectDB } from "@/lib/db";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import mongoose from "mongoose";
 import { error, success } from "@/lib/api-response";
 
@@ -7,16 +7,22 @@ import { error, success } from "@/lib/api-response";
 // import { auth } from "@/auth";
 
 type Params = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
-export async function PATCH(req: Request, { params }: Params) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: Params
+) {
   try {
     await connectDB();
 
     const User = mongoose.models.User;
+
+    const { id } = await params;
+
     const body = await req.json();
 
     // const session = await auth();
@@ -25,9 +31,8 @@ export async function PATCH(req: Request, { params }: Params) {
     //   return error("Unauthorized", 401);
     // }
 
-    // Prevent self role downgrade (FIXED - session issue was here)
     // if (
-    //   params.id === session.user.id &&
+    //   id === session.user.id &&
     //   body.role &&
     //   body.role !== "Admin"
     // ) {
@@ -35,7 +40,7 @@ export async function PATCH(req: Request, { params }: Params) {
     // }
 
     const user = await User.findByIdAndUpdate(
-      params.id,
+      id,
       body,
       {
         new: true,
@@ -53,11 +58,16 @@ export async function PATCH(req: Request, { params }: Params) {
   }
 }
 
-export async function DELETE(_: Request, { params }: Params) {
+export async function DELETE(
+  _: NextRequest,
+  { params }: Params
+) {
   try {
     await connectDB();
 
     const User = mongoose.models.User;
+
+    const { id } = await params;
 
     // const session = await auth();
 
@@ -65,11 +75,11 @@ export async function DELETE(_: Request, { params }: Params) {
     //   return error("Unauthorized", 401);
     // }
 
-    // if (params.id === session.user.id) {
+    // if (id === session.user.id) {
     //   return error("Cannot delete yourself", 400);
     // }
 
-    const user = await User.findByIdAndDelete(params.id);
+    const user = await User.findByIdAndDelete(id);
 
     if (!user) {
       return error("User not found", 404);
