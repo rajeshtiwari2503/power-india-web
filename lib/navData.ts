@@ -3,8 +3,9 @@ export type MegaCol  = { heading: string; links: NavLink[] }
 export type NavItem  = { label: string; href?: string; dropdown?: NavLink[]; mega?: MegaCol[] }
 
 export const NAV_ITEMS: NavItem[] = [
+   { label: 'About Us', href: '/about' },
   {
-    label: 'New Connections',
+    label: 'Certification Services',
     mega: [
       {
         heading: 'Domestic & Commercial',
@@ -18,7 +19,7 @@ export const NAV_ITEMS: NavItem[] = [
         ],
       },
       {
-        heading: 'Industrial & HT / LT',
+        heading: ' Testing Services',
         links: [
           { label: 'HT Industrial Connection',  href: '/services/ht-industrial-connection' },
           { label: 'LT Industrial Connection',  href: '/services/lt-industrial-connection' },
@@ -42,7 +43,7 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    label: 'Solar & Green',
+    label: 'NABL Testing Services',
     mega: [
       {
         heading: 'Solar Installation',
@@ -75,67 +76,69 @@ export const NAV_ITEMS: NavItem[] = [
       },
     ],
   },
-  {
-    label: 'Industrial',
-    mega: [
-      {
-        heading: 'Power Setup',
-        links: [
-          { label: 'Factory Power Setup',              href: '/services/factory-power-setup' },
-          { label: 'DG Set Installation',              href: '/services/dg-set-installation' },
-          { label: 'Transformer Installation',         href: '/services/transformer-installation' },
-          { label: 'Substation Setup',                 href: '/services/substation-setup' },
-          { label: 'Capacitor Bank Setup',             href: '/services/capacitor-bank' },
-        ],
-      },
-      {
-        heading: 'Audit & Compliance',
-        links: [
-          { label: 'Energy Audit',                     href: '/services/energy-audit' },
-          { label: 'Electrical Safety Audit',          href: '/services/electrical-safety-audit' },
-          { label: 'Power Factor Correction',          href: '/services/power-factor-correction' },
-          { label: 'Tariff Reclassification',          href: '/services/tariff-reclassification' },
-          { label: 'Annual Return Filing',             href: '/services/annual-return-filing' },
-        ],
-      },
-      {
-        heading: 'Licenses & NOC',
-        links: [
-          { label: 'Electrical Contractor License',    href: '/services/electrical-contractor-license' },
-          { label: 'Wireman License',                  href: '/services/wireman-license' },
-          { label: 'Electrical Inspector NOC',         href: '/services/electrical-inspector-noc' },
-          { label: 'CEA Compliance',                   href: '/services/cea-compliance' },
-          { label: 'Safety Certificate',               href: '/services/safety-certificate' },
-        ],
-      },
-    ],
-  },
-  {
-    label: 'Billing & NOC',
-    dropdown: [
-      { label: 'Electricity Bill Dispute',   href: '/services/electricity-bill-dispute' },
-      { label: 'Bill Correction Request',    href: '/services/bill-correction' },
-      { label: 'Arrear Settlement',          href: '/services/arrear-settlement' },
-      { label: 'Connection Restoration',     href: '/services/connection-restoration' },
-      { label: 'Security Deposit Refund',    href: '/services/security-deposit-refund' },
-      { label: 'NOC from DISCOM',            href: '/services/noc-from-discom' },
-      { label: 'Tariff Category Change',     href: '/services/tariff-category-change' },
-      { label: 'Disconnection Appeal',       href: '/services/disconnection-appeal' },
-    ],
-  },
-  {
-    label: 'Maintenance',
-    dropdown: [
-      { label: 'Electrical Maintenance AMC', href: '/services/electrical-amc' },
-      { label: 'Transformer Maintenance',    href: '/services/transformer-maintenance' },
-      { label: 'DG Set Service',             href: '/services/dg-set-service' },
-      { label: 'Solar Panel Cleaning',       href: '/services/solar-panel-cleaning' },
-      { label: 'Wiring & Rewiring',          href: '/services/wiring-rewiring' },
-      { label: 'Switchgear Maintenance',     href: '/services/switchgear-maintenance' },
-      { label: 'UPS & Inverter Service',     href: '/services/ups-inverter-service' },
-    ],
-  },
-  { label: 'About Us', href: '/about' },
+  // {
+  //   label: 'Industrial',
+  //   mega: [
+  //     {
+  //       heading: 'Power Setup',
+  //       links: [
+  //         { label: 'Factory Power Setup',              href: '/services/factory-power-setup' },
+  //         { label: 'DG Set Installation',              href: '/services/dg-set-installation' },
+  //         { label: 'Transformer Installation',         href: '/services/transformer-installation' },
+  //         { label: 'Substation Setup',                 href: '/services/substation-setup' },
+  //         { label: 'Capacitor Bank Setup',             href: '/services/capacitor-bank' },
+  //       ],
+  //     },
+  //     {
+  //       heading: 'Audit & Compliance',
+  //       links: [
+  //         { label: 'Energy Audit',                     href: '/services/energy-audit' },
+  //         { label: 'Electrical Safety Audit',          href: '/services/electrical-safety-audit' },
+  //         { label: 'Power Factor Correction',          href: '/services/power-factor-correction' },
+  //         { label: 'Tariff Reclassification',          href: '/services/tariff-reclassification' },
+  //         { label: 'Annual Return Filing',             href: '/services/annual-return-filing' },
+  //       ],
+  //     },
+  //     {
+  //       heading: 'Licenses & NOC',
+  //       links: [
+  //         { label: 'Electrical Contractor License',    href: '/services/electrical-contractor-license' },
+  //         { label: 'Wireman License',                  href: '/services/wireman-license' },
+  //         { label: 'Electrical Inspector NOC',         href: '/services/electrical-inspector-noc' },
+  //         { label: 'CEA Compliance',                   href: '/services/cea-compliance' },
+  //         { label: 'Safety Certificate',               href: '/services/safety-certificate' },
+  //       ],
+  //     },
+  //   ],
+  // },
+  // {
+  //   label: 'Billing & NOC',
+  //   dropdown: [
+  //     { label: 'Electricity Bill Dispute',   href: '/services/electricity-bill-dispute' },
+  //     { label: 'Bill Correction Request',    href: '/services/bill-correction' },
+  //     { label: 'Arrear Settlement',          href: '/services/arrear-settlement' },
+  //     { label: 'Connection Restoration',     href: '/services/connection-restoration' },
+  //     { label: 'Security Deposit Refund',    href: '/services/security-deposit-refund' },
+  //     { label: 'NOC from DISCOM',            href: '/services/noc-from-discom' },
+  //     { label: 'Tariff Category Change',     href: '/services/tariff-category-change' },
+  //     { label: 'Disconnection Appeal',       href: '/services/disconnection-appeal' },
+  //   ],
+  // },
+  // {
+  //   label: 'Maintenance',
+  //   dropdown: [
+  //     { label: 'Electrical Maintenance AMC', href: '/services/electrical-amc' },
+  //     { label: 'Transformer Maintenance',    href: '/services/transformer-maintenance' },
+  //     { label: 'DG Set Service',             href: '/services/dg-set-service' },
+  //     { label: 'Solar Panel Cleaning',       href: '/services/solar-panel-cleaning' },
+  //     { label: 'Wiring & Rewiring',          href: '/services/wiring-rewiring' },
+  //     { label: 'Switchgear Maintenance',     href: '/services/switchgear-maintenance' },
+  //     { label: 'UPS & Inverter Service',     href: '/services/ups-inverter-service' },
+  //   ],
+  // },
+ 
+  { label: 'Notifications', href: '/notifications' },
+  { label: 'Blog',  href: '/blog' },
   { label: 'Contact',  href: '/contact' },
 ]
 

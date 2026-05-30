@@ -253,15 +253,12 @@ export default function HeroSection() {
                 ⚡ Free Consultation
               </div>
 
-              <h3 className="text-3xl font-black text-slate-900 leading-tight">
-                Talk To
-                <br />
-                Energy Experts
-              </h3>
+              <h5 className="text-2xl font-black text-slate-900 leading-tight">
+              Get Expert Certification Assistance for Your Products
+              </h5>
 
-              <p className="text-slate-500 mt-3 leading-7">
-                Get instant support from professionals for electricity,
-                compliance, solar and industrial utility solutions.
+              <p className="text-slate-500 mt-3 text-sm">
+             At Power India Services, we help manufacturers, importers, startups, and brands obtain mandatory certifications and regulatory approvals across India with complete professional support.
               </p>
             </div>
 

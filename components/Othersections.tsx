@@ -1,18 +1,18 @@
- 'use client'
+'use client'
 import { useState } from 'react'
 import Link from 'next/link'
 import ContactForm from './ui/Contactform'
- 
+
 
 /* WHY US BAR */
 export function WhyUsBar() {
   const feats = [
     { icon: '⚡', label: 'Fast Processing', desc: 'Applications processed in record time with our deep government connections and DISCOM expertise.', color: 'from-orange-500 to-amber-400' },
-    { icon: '🗺️', label: 'PAN India Coverage', desc: 'Serving clients across 25+ states with local expertise and physical presence in all major cities.', color: 'from-emerald-500 to-teal-400' },
+    { icon: '🗺️', label: 'Global Coverage', desc: 'Serving clients across 25+ states with local expertise and physical presence in all major cities.', color: 'from-emerald-500 to-teal-400' },
     { icon: '🤝', label: 'Free Consultation', desc: 'Expert guidance at zero cost. Our certified engineers available 6 days a week for you.', color: 'from-blue-500 to-cyan-400' },
     { icon: '✅', label: 'Google Verified', desc: '4.9★ rated on Google with 600+ verified reviews. Trusted by thousands of businesses.', color: 'from-violet-500 to-purple-400' },
     { icon: '🛡️', label: '100% Compliant', desc: 'All services fully compliant with CERC, SERC & DISCOM guidelines. No shortcuts, no risks.', color: 'from-rose-500 to-pink-400' },
-    { icon: '💰', label: 'Refund Assurance', desc: 'Transparent pricing, no hidden costs. Full refund guarantee if service goals are not met.', color: 'from-amber-500 to-yellow-400' },
+    // { icon: '💰', label: 'Refund Assurance', desc: 'Transparent pricing, no hidden costs. Full refund guarantee if service goals are not met.', color: 'from-amber-500 to-yellow-400' },
   ]
   return (
     <section className="bg-white py-16 px-5 relative overflow-hidden">
@@ -24,15 +24,15 @@ export function WhyUsBar() {
               <span className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-pulse" />Why Choose Us
             </div>
             <h2 className="font-poppins font-bold text-4xl text-brand-navy leading-tight">
-              Why 5,000+ Businesses<br /><span className="text-brand-orange">Trust Power India Services</span>
+              Why 8500+ Businesses<br /><span className="text-brand-orange">Trust Power India Services</span>
             </h2>
           </div>
           <div className="flex items-center gap-4 flex-shrink-0">
             <div className="text-center"><div className="font-poppins font-extrabold text-3xl text-brand-orange">4.9★</div><div className="text-xs text-gray-400 font-semibold">Google Rating</div></div>
             <div className="w-px h-10 bg-gray-200" />
-            <div className="text-center"><div className="font-poppins font-extrabold text-3xl text-brand-orange">600+</div><div className="text-xs text-gray-400 font-semibold">Reviews</div></div>
+            <div className="text-center"><div className="font-poppins font-extrabold text-3xl text-brand-orange">500+</div><div className="text-xs text-gray-400 font-semibold">Reviews</div></div>
             <div className="w-px h-10 bg-gray-200" />
-            <div className="text-center"><div className="font-poppins font-extrabold text-3xl text-brand-orange">15+</div><div className="text-xs text-gray-400 font-semibold">Years Exp.</div></div>
+            <div className="text-center"><div className="font-poppins font-extrabold text-3xl text-brand-orange">10+</div><div className="text-xs text-gray-400 font-semibold">Years Exp.</div></div>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -63,33 +63,45 @@ export function TeamSection() {
     { num: '98%', label: 'Success Rate' },
   ]
   return (
-    <section className="relative py-20 px-5 overflow-hidden bg-[#0b1120]">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0b1120] via-[#1a2455]/80 to-[#0b1120]" />
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-orange/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-brand-yellow/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
-      <div className="max-w-[1260px] mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+    <section className="relative py-12 overflow-hidden bg-[#f8fafc]">
+
+      {/* Animated Gradient Mesh */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-orange-300/20 rounded-full blur-3xl animate-pulse" />
+
+        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-blue-300/20 rounded-full blur-3xl animate-pulse [animation-delay:2s]" />
+
+        <div className="absolute top-[40%] left-[35%] w-[350px] h-[350px] bg-cyan-200/20 rounded-full blur-3xl animate-pulse [animation-delay:4s]" />
+      </div>
+
+      {/* Grid Pattern */}
+      <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-[size:80px_80px]" />
+
+      {/* Floating Glow */}
+      <div className="absolute top-20 right-20 w-40 h-40 rounded-full border border-orange-200/40 animate-spin-slow" />
+      <div className="absolute bottom-20 left-10 w-24 h-24 rounded-full border border-blue-200/40 animate-spin-slow-reverse" />
+      <div className="mx-auto px-5 md:px-12 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div>
           <div className="inline-flex items-center gap-2 border border-brand-orange/30 bg-brand-orange/10 text-brand-orange text-[11px] font-bold uppercase tracking-wider px-4 py-1.5 rounded-full mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-pulse" />Our Expert Team
           </div>
-          <h2 className="font-poppins font-bold text-4xl lg:text-[42px] text-white leading-[1.1] mb-6">
+          <h2 className="font-poppins font-bold text-4xl lg:text-[42px] text-black leading-[1.1] mb-6">
             The Team Behind<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-brand-yellow">India&apos;s Best Utility Service</span>
           </h2>
-          <p className="text-[15px] text-white/60 leading-relaxed mb-4">Our highly skilled professionals personify the qualities that have made us successful. Power India Services transforms the way businesses manage utility requirements by simplifying complex government processes.</p>
-          <p className="text-[15px] text-white/60 leading-relaxed mb-8">Our experts in electrical engineering, solar energy, and compliance handhold clients through their entire journey — from connection application to long-term maintenance.</p>
+          <p className="text-[15px] text-black leading-relaxed mb-4">Our highly skilled professionals personify the qualities that have made us successful. Power India Services transforms the way businesses manage utility requirements by simplifying complex government processes.</p>
+          <p className="text-[15px] text-black leading-relaxed mb-8">Our experts in electrical engineering, solar energy, and compliance handhold clients through their entire journey — from connection application to long-term maintenance.</p>
           <div className="grid grid-cols-4 gap-3 mb-8">
             {stats.map(s => (
               <div key={s.label} className="bg-white/5 border border-white/10 rounded-xl p-3 text-center backdrop-blur-sm">
                 <div className="font-poppins font-extrabold text-2xl text-brand-yellow">{s.num}</div>
-                <div className="text-[10.5px] text-white/40 font-semibold leading-tight mt-0.5">{s.label}</div>
+                <div className="text-[10.5px] text-black font-semibold leading-tight mt-0.5">{s.label}</div>
               </div>
             ))}
           </div>
           <div className="flex gap-3 flex-wrap">
-            <Link href="/about" className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-orange to-brand-orangeLt hover:from-brand-orangeHv hover:to-brand-orange text-white font-bold text-sm px-7 py-3.5 rounded-xl transition-all shadow-lg shadow-brand-orange/25 hover:shadow-brand-orange/40 hover:-translate-y-0.5">More About Us →</Link>
-            <Link href="/team" className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 text-white font-semibold text-sm px-7 py-3.5 rounded-xl transition-all">Meet Our Team</Link>
+            <Link href="/about" className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-orange to-brand-orangeLt hover:from-brand-orangeHv hover:to-brand-orange text-black font-bold text-sm px-7 py-3.5 rounded-xl transition-all shadow-lg shadow-brand-orange/25 hover:shadow-brand-orange/40 hover:-translate-y-0.5">More About Us →</Link>
+            <Link href="/team" className="inline-flex items-center gap-2 bg-black backdrop-blur-sm border border-white/20 hover:bg-white/15 text-white font-semibold text-sm px-7 py-3.5 rounded-xl transition-all">Meet Our Team</Link>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -97,14 +109,14 @@ export function TeamSection() {
             <div className="absolute inset-0 bg-black/10" />
             <div className="relative z-10 flex flex-col items-center gap-2">
               <span className="text-6xl">👥</span>
-              <span className="font-poppins font-bold text-white text-sm tracking-wider">Our Expert Team</span>
+              <span className="font-poppins font-bold text-black text-sm tracking-wider">Our Expert Team</span>
             </div>
           </div>
-          <div className="rounded-xl bg-gradient-to-br from-[#1a2455] to-[#23316e] h-32 flex flex-col items-center justify-center gap-2 shadow-lg">
-            <span className="text-4xl">⚡</span><span className="text-white/70 text-xs font-semibold">Power Experts</span>
+          <div className="rounded-xl bg-gradient-to-br from-[#eeeef0] to-[#f4f5f8] h-32 flex flex-col items-center justify-center gap-2 shadow-lg">
+            <span className="text-4xl">⚡</span><span className="text-black text-xs font-semibold">Power Experts</span>
           </div>
           <div className="rounded-xl bg-gradient-to-br from-amber-600 to-orange-500 h-32 flex flex-col items-center justify-center gap-2 shadow-lg">
-            <span className="text-4xl">☀️</span><span className="text-white/70 text-xs font-semibold">Solar Specialists</span>
+            <span className="text-4xl">☀️</span><span className="text-black text-xs font-semibold">Solar Specialists</span>
           </div>
         </div>
       </div>
@@ -116,9 +128,9 @@ export function TeamSection() {
 export function MediaSection() {
   const articles = [
     { logo: 'PTI', outlet: 'Press Trust of India', tag: 'Featured', headline: 'Why Power India Services Is Your Best Choice for Electricity Connections & Compliance', excerpt: 'Power India Services is a reliable partner for all electricity and utility requirements, making complex DISCOM processes simple for businesses across India.', color: 'from-blue-500 to-indigo-500' },
-    { logo: 'HT',  outlet: 'Hindustan Times',      tag: 'Business', headline: 'Power India Services is making utility services affordable and simple for businesses across India', excerpt: 'A Delhi-based utility startup offering a wide range of power and electrical services to thousands of businesses across Pan-India.', color: 'from-red-500 to-rose-500' },
-    { logo: 'EH',  outlet: 'Entrepreneur Hunt',    tag: 'Startup',  headline: 'How Power India Services Is Revolutionizing Industrial Power Services in India', excerpt: 'Power India Services has transformed how industries manage electricity connections and compliance, making processes faster and cost-effective.', color: 'from-emerald-500 to-teal-500' },
-    { logo: 'II',  outlet: 'Influencive India',    tag: 'Innovation',headline: 'Power India Services – Simplifying Complex Power & Utility Problems for Businesses', excerpt: 'Industrial power setup delays cost businesses lakhs every month. Power India Services is determined to reverse this trend.', color: 'from-violet-500 to-purple-500' },
+    { logo: 'HT', outlet: 'Hindustan Times', tag: 'Business', headline: 'Power India Services is making utility services affordable and simple for businesses across India', excerpt: 'A Delhi-based utility startup offering a wide range of power and electrical services to thousands of businesses across Pan-India.', color: 'from-red-500 to-rose-500' },
+    { logo: 'EH', outlet: 'Entrepreneur Hunt', tag: 'Startup', headline: 'How Power India Services Is Revolutionizing Industrial Power Services in India', excerpt: 'Power India Services has transformed how industries manage electricity connections and compliance, making processes faster and cost-effective.', color: 'from-emerald-500 to-teal-500' },
+    { logo: 'II', outlet: 'Influencive India', tag: 'Innovation', headline: 'Power India Services – Simplifying Complex Power & Utility Problems for Businesses', excerpt: 'Industrial power setup delays cost businesses lakhs every month. Power India Services is determined to reverse this trend.', color: 'from-violet-500 to-purple-500' },
   ]
   return (
     <section className="bg-gradient-to-b from-white to-gray-50/80 py-20 px-5">
@@ -159,14 +171,14 @@ export function MediaSection() {
 /* TESTIMONIALS */
 export function TestimonialsSection() {
   const reviews = [
-    { av:'RK', name:'Rajesh Kumar',   role:'Factory Owner, Haryana',     stars:5, platform:'Google',     text:'It was a great experience working with Power India Services. They got our HT connection approved in just 3 weeks. Their expertise in dealing with government departments is unmatched.' },
-    { av:'PS', name:'Priya Sharma',   role:'Restaurant Owner, Delhi',    stars:5, platform:'Google',     text:'Professional and friendly experience, quick response and remarkable assistance. Loved their solar net metering service. Completely hassle-free — not a single office visit required!' },
-    { av:'AM', name:'Anand Mehta',    role:'Builder, Noida',             stars:5, platform:'Trustpilot', text:'Energy audit delivered in just 4 days. Saved our business ₹2 lakh annually. Very happy with their professional and timely service. Will definitely use them again.' },
-    { av:'SA', name:'Sunita Agarwal', role:'Hotel Owner, Jaipur',        stars:5, platform:'Google',     text:'Great & helpful support by everyone. Got response whenever I called. Heartily thanks for the super service for our hotel\'s load enhancement. Strongly recommended!' },
-    { av:'VS', name:'Vijay Singh',    role:'Manufacturer, Pune',         stars:5, platform:'Google',     text:'Really appreciate your efforts in getting our rooftop solar installed with net metering. Work was smooth yet quick. Their team guided us at every step. 5 stars!' },
-    { av:'MR', name:'Meena Reddy',    role:'IT Park Manager, Hyderabad', stars:5, platform:'Trustpilot', text:'Their follow-up with DISCOM and regular updates helped me a lot. From connection application to approval — everything was managed professionally. Excellent team!' },
-    { av:'TG', name:'Tarun Gupta',    role:'Engineer, Mumbai',           stars:5, platform:'Google',     text:'Great experience getting our industrial connection done. Process was quite convenient and fast. They explained everything I wanted to know. Best utility service!' },
-    { av:'AA', name:'Aftab Alam',     role:'Business Owner, Delhi',      stars:5, platform:'Google',     text:'Best in this industry and their prices are so affordable. Now they are my full-time utility consultant. If you have any power or utility problem, call Power India Services!' },
+    { av: 'RK', name: 'Rajesh Kumar', role: 'Factory Owner, Haryana', stars: 5, platform: 'Google', text: 'It was a great experience working with Power India Services. They got our HT connection approved in just 3 weeks. Their expertise in dealing with government departments is unmatched.' },
+    { av: 'PS', name: 'Priya Sharma', role: 'Restaurant Owner, Delhi', stars: 5, platform: 'Google', text: 'Professional and friendly experience, quick response and remarkable assistance. Loved their solar net metering service. Completely hassle-free — not a single office visit required!' },
+    { av: 'AM', name: 'Anand Mehta', role: 'Builder, Noida', stars: 5, platform: 'Trustpilot', text: 'Energy audit delivered in just 4 days. Saved our business ₹2 lakh annually. Very happy with their professional and timely service. Will definitely use them again.' },
+    { av: 'SA', name: 'Sunita Agarwal', role: 'Hotel Owner, Jaipur', stars: 5, platform: 'Google', text: 'Great & helpful support by everyone. Got response whenever I called. Heartily thanks for the super service for our hotel\'s load enhancement. Strongly recommended!' },
+    { av: 'VS', name: 'Vijay Singh', role: 'Manufacturer, Pune', stars: 5, platform: 'Google', text: 'Really appreciate your efforts in getting our rooftop solar installed with net metering. Work was smooth yet quick. Their team guided us at every step. 5 stars!' },
+    { av: 'MR', name: 'Meena Reddy', role: 'IT Park Manager, Hyderabad', stars: 5, platform: 'Trustpilot', text: 'Their follow-up with DISCOM and regular updates helped me a lot. From connection application to approval — everything was managed professionally. Excellent team!' },
+    { av: 'TG', name: 'Tarun Gupta', role: 'Engineer, Mumbai', stars: 5, platform: 'Google', text: 'Great experience getting our industrial connection done. Process was quite convenient and fast. They explained everything I wanted to know. Best utility service!' },
+    { av: 'AA', name: 'Aftab Alam', role: 'Business Owner, Delhi', stars: 5, platform: 'Google', text: 'Best in this industry and their prices are so affordable. Now they are my full-time utility consultant. If you have any power or utility problem, call Power India Services!' },
   ]
   const platformColor: Record<string, string> = {
     Google: 'bg-red-50 text-red-500 border-red-100',
@@ -197,7 +209,7 @@ export function TestimonialsSection() {
           </div>
         </div>
         <div className="flex gap-2.5 flex-wrap mb-8">
-          {['✅ 600+ Verified Reviews','🏆 50+ Appreciation Letters','📅 15+ Years Experience','🇮🇳 Pan India Trusted'].map(b => (
+          {['✅ 600+ Verified Reviews', '🏆 50+ Appreciation Letters', '📅 15+ Years Experience', '🇮🇳 Pan India Trusted'].map(b => (
             <span key={b} className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-100 text-gray-600 text-xs font-semibold px-3 py-1.5 rounded-full">{b}</span>
           ))}
         </div>
@@ -207,7 +219,7 @@ export function TestimonialsSection() {
               <div className="absolute top-3 right-4 text-[64px] font-serif text-brand-orange/[0.07] leading-none select-none">&ldquo;</div>
               <div className="flex items-center justify-between">
                 <div className="flex gap-0.5">
-                  {Array(r.stars).fill(0).map((_,i) => (
+                  {Array(r.stars).fill(0).map((_, i) => (
                     <svg key={i} className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
                   ))}
                 </div>
@@ -237,26 +249,53 @@ export function TestimonialsSection() {
 /* CLIENTS MARQUEE */
 export function ClientsSection() {
   const clients = [
-    { name:'TATA Group',icon:'🏢'},{ name:'Reliance',icon:'🔋'},{ name:'Adani Power',icon:'⚡'},
-    { name:'NTPC Ltd',icon:'🏭'},{ name:'Vedanta',icon:'⛏️'},{ name:'JSW Steel',icon:'🔩'},
-    { name:'Hindalco',icon:'🏗️'},{ name:'DLF Infra',icon:'🏘️'},{ name:'ITC Hotels',icon:'🏨'},
-    { name:'Maruti Suzuki',icon:'🚗'},{ name:'HUL Corp',icon:'🧴'},{ name:'Borosil',icon:'🔬'},
-    { name:'ONGC Ltd',icon:'⛽'},{ name:'HPCL',icon:'🛢️'},{ name:'BPCL',icon:'🔥'},
+    { name: 'TATA Group', icon: '🏢' }, { name: 'Reliance', icon: '🔋' }, { name: 'Adani Power', icon: '⚡' },
+    { name: 'NTPC Ltd', icon: '🏭' }, { name: 'Vedanta', icon: '⛏️' }, { name: 'JSW Steel', icon: '🔩' },
+    { name: 'Hindalco', icon: '🏗️' }, { name: 'DLF Infra', icon: '🏘️' }, { name: 'ITC Hotels', icon: '🏨' },
+    { name: 'Maruti Suzuki', icon: '🚗' }, { name: 'HUL Corp', icon: '🧴' }, { name: 'Borosil', icon: '🔬' },
+    { name: 'ONGC Ltd', icon: '⛽' }, { name: 'HPCL', icon: '🛢️' }, { name: 'BPCL', icon: '🔥' },
   ]
   return (
     <section className="py-12 px-5 bg-gray-50/80 overflow-hidden border-y border-gray-100">
       <div className="max-w-[1260px] mx-auto mb-5">
-        <p className="text-center text-[11px] font-bold text-gray-300 uppercase tracking-[3px]">Trusted & Appreciated By Leading Businesses</p>
+        <p className="text-center text-[11px] font-bold text-black uppercase tracking-[3px]">Trusted & Appreciated By Leading Businesses</p>
       </div>
-      <div className="overflow-hidden">
-        <div className="marquee-anim flex gap-4 w-max">
-          {[...clients,...clients].map((c,i) => (
-            <div key={i} className="group flex items-center gap-2.5 w-[148px] h-14 bg-white border border-gray-100 rounded-xl px-4 flex-shrink-0 hover:border-brand-orange hover:shadow-lg transition-all duration-300 cursor-default">
-              <span className="text-xl flex-shrink-0">{c.icon}</span>
-              <span className="text-[11.5px] font-bold text-gray-400 group-hover:text-brand-orange transition-colors leading-tight">{c.name}</span>
-            </div>
-          ))}
+      <div className="space-y-4 overflow-hidden">
+
+        {/* Left to Right */}
+        <div className="overflow-hidden">
+          <div className="marquee-left flex gap-4 w-max">
+            {[...clients, ...clients].map((c, i) => (
+              <div
+                key={`left-${i}`}
+                className="group flex items-center gap-2.5 w-[148px] h-14 bg-white border border-gray-100 rounded-xl px-4 flex-shrink-0 hover:border-brand-orange hover:shadow-lg transition-all duration-300"
+              >
+                <span className="text-xl flex-shrink-0">{c.icon}</span>
+                <span className="text-[11.5px] font-bold text-gray-400 group-hover:text-brand-orange transition-colors leading-tight">
+                  {c.name}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Right to Left */}
+        <div className="overflow-hidden">
+          <div className="marquee-right flex gap-4 w-max">
+            {[...clients, ...clients].map((c, i) => (
+              <div
+                key={`right-${i}`}
+                className="group flex items-center gap-2.5 w-[148px] h-14 bg-white border border-gray-100 rounded-xl px-4 flex-shrink-0 hover:border-brand-orange hover:shadow-lg transition-all duration-300"
+              >
+                <span className="text-xl flex-shrink-0">{c.icon}</span>
+                <span className="text-[11.5px] font-bold text-gray-400 group-hover:text-brand-orange transition-colors leading-tight">
+                  {c.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </section>
   )
@@ -298,12 +337,13 @@ export function VideoConsultStrip() {
 /* CONTACT SECTION */
 export function ContactSection() {
   const details = [
-    { icon:'📍', label:'Visit Us',       val:'804, 8th Floor, Bhandari House-91,\nNehru Place, New Delhi – 110019', color:'bg-red-50 text-red-500' },
-    { icon:'📞', label:'Call / WhatsApp',val:'+91 9999-000-000',                                                    color:'bg-green-50 text-green-600' },
-    { icon:'📧', label:'Email Us',       val:'info@powerindiaservices.com',                                          color:'bg-blue-50 text-blue-500' },
-    { icon:'⏰', label:'Working Hours',  val:'Monday – Saturday\n9:00 AM to 7:00 PM (IST)',                         color:'bg-amber-50 text-amber-600' },
+    { icon: '📍', label: 'Registred Office Address ', val: 'FF-29, Gali No. 16 Mangal Bazar, Laxmi Nagar, East Delhi, 110092', color: 'bg-red-50 text-red-500' },
+    { icon: '📍', label: 'Coorporate Office Address', val: 'PLOT NO. 61, VIJAY BLOCK, LAXMI NAGAR, NEW DELHI-110092', color: 'bg-red-50 text-red-500' },
+    { icon: '📞', label: 'Call / WhatsApp', val: '+91 7217698176', color: 'bg-green-50 text-green-600' },
+    { icon: '📧', label: 'Email Us', val: 'certification@powerindiaservices.com', color: 'bg-blue-50 text-blue-500' },
+    // { icon: '⏰', label: 'Working Hours', val: 'Monday – Saturday\n9:00 AM to 7:00 PM (IST)', color: 'bg-amber-50 text-amber-600' },
   ]
-  const quickLinks = ['New Electricity Connection','Solar & Net Metering','Energy Audit','Bill Dispute','Load Enhancement','Licensing & NOC']
+  const quickLinks = ['New Electricity Connection', 'Solar & Net Metering', 'Energy Audit', 'Bill Dispute', 'Load Enhancement', 'Licensing & NOC']
   return (
     <section className="relative py-20 px-5 overflow-hidden bg-gradient-to-b from-gray-50 to-white" id="contact">
       <div className="absolute top-0 right-0 w-96 h-96 bg-orange-50 rounded-full blur-3xl opacity-60 pointer-events-none" />
@@ -333,20 +373,31 @@ export function ContactSection() {
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-4">Quick Service Enquiry</p>
               <div className="flex flex-wrap gap-2">
                 {quickLinks.map(l => (
-                  <Link key={l} href="#" className="inline-flex items-center gap-1.5 border border-brand-orange/30 text-brand-orange hover:bg-brand-orange hover:text-white text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all">
+                  <Link key={l} href="#" className="inline-flex items-center gap-1.5 border border-brand-orange/30 text-brand-orange hover:bg-orange-400 hover:text-white text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all">
                     <span className="text-[10px]">✔</span> {l}
                   </Link>
                 ))}
               </div>
             </div>
-            <div className="rounded-2xl overflow-hidden border border-gray-100 h-44 bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 flex flex-col items-center justify-center gap-3 cursor-pointer group hover:shadow-lg transition-shadow">
-              <div className="text-4xl group-hover:scale-110 transition-transform">🗺️</div>
-              <div className="text-center">
-                <p className="font-semibold text-brand-navy text-sm">Nehru Place, New Delhi</p>
-                <p className="text-brand-orange text-xs font-bold flex items-center gap-1 justify-center mt-1 group-hover:gap-2 transition-all">
-                  View on Google Maps <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                </p>
-              </div>
+            <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+              <iframe
+                src="https://maps.google.com/maps?q=FF-29%20Gali%20No%2016%20Mangal%20Bazar%20Road%20Guru%20Ram%20Das%20Nagar%20Laxmi%20Nagar%20New%20Delhi%20110092&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                className="w-full h-[250px]  ]"
+                loading="lazy"
+                allowFullScreen
+              />
+
+              {/* <div className="absolute bottom-4 left-4 right-4 md:right-auto rounded-2xl bg-white/95 backdrop-blur-md p-4 shadow-xl">
+    <h3 className="font-bold text-lg text-[#252b7a]">
+      Power India Services
+    </h3>
+
+    <p className="text-sm text-slate-600 mt-2">
+      FF-29, Gali No.16, Mangal Bazar Road,
+      Guru Ram Das Nagar, Laxmi Nagar,
+      New Delhi - 110092
+    </p>
+  </div> */}
             </div>
           </div>
           <div className="bg-white rounded-3xl shadow-2xl shadow-gray-200/80 border border-gray-100 overflow-hidden sticky top-20">
@@ -359,7 +410,7 @@ export function ContactSection() {
                 </div>
               </div>
               <div className="flex gap-2 mt-4 flex-wrap">
-                {['🔒 Secure','✅ Free','⚡ Fast Response'].map(b => (
+                {['🔒 Secure', '✅ Free', '⚡ Fast Response'].map(b => (
                   <span key={b} className="bg-white/10 text-white/80 text-[10px] font-semibold px-2.5 py-1 rounded-full">{b}</span>
                 ))}
               </div>

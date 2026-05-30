@@ -27,13 +27,31 @@
 .acc-close { max-height: 0;     transition: max-height .25s ease; overflow: hidden; }
 
 /* marquee */
-@keyframes marquee {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+.marquee-left {
+  animation: marqueeLeft 50s linear infinite;
 }
-.marquee-anim { animation: marquee 26s linear infinite; }
-.marquee-anim:hover { animation-play-state: paused; }
 
+.marquee-right {
+  animation: marqueeRight 50s linear infinite;
+}
+
+@keyframes marqueeLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marqueeRight {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
 /* footer gradient bar */
 .footer-bar {
   height: 3px;

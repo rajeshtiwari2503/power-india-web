@@ -45,11 +45,16 @@ function SvcSection({ heading, sub, items, alt }: Props) {
           className="sticky top-24"
         >
           {/* Small Badge */}
+            <div className="mt-8 flex items-center gap-3">
+            <div className="w-16 h-[2px] bg-gradient-to-r from-orange-500 to-transparent rounded-full" />
+
+            <div className="w-3 h-3 rounded-full bg-orange-400" />
+          </div>
           <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-xl border border-orange-100 rounded-full px-4 py-2 shadow-lg shadow-orange-100/40 mb-5">
-            <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-            <span className="text-xs font-bold tracking-wide text-orange-600 uppercase">
+            {/* <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" /> */}
+            {/* <span className="text-xs font-bold tracking-wide text-orange-600 uppercase">
               Power Services
-            </span>
+            </span> */}
           </div>
 
           {/* Heading */}
@@ -63,7 +68,7 @@ function SvcSection({ heading, sub, items, alt }: Props) {
           </p>
 
           {/* Decorative */}
-          <div className="mt-8 flex items-center gap-3">
+          <div className="mt-10 flex items-center gap-3">
             <div className="w-16 h-[2px] bg-gradient-to-r from-orange-500 to-transparent rounded-full" />
 
             <div className="w-3 h-3 rounded-full bg-orange-400" />
@@ -136,33 +141,36 @@ const SECTIONS: Props[] = [
       { label: 'TEC Certification', href: '/services/tec-certification' },
       { label: 'BEE Star Rating', href: '/services/bee-registration-consultants' },
       { label: 'ISO Certification Agent', href: '/services/iso-certification-agent' },
+         { label: 'EPR Registration', href: '/services/epr-registration' },
       { label: 'CE & RoHS Certification', href: '/services/ce-certification-delhi' },
       { label: 'Trademark Registration', href: '/services/trademark-registration' },
       { label: 'IEC Registration', href: '/services/iec-registration-agent' },
+      { label: 'GeM Registration', href: '/services/iec-registration-agent' },
+   
     ],
   },
-  {
-    heading: 'EPR & Waste Management',
-    sub: 'Specialised EPR and waste management services for plastic, e‑waste and batteries, as per CPCB/MoEFCC guidelines.',
-    items: [
-      { label: 'EPR Authorization (E‑waste)', href: '/services/epr-authorization-certificate-provider' },
-      { label: 'Plastic Waste EPR Registration', href: '/services/plastic-waste-management-epr-registration' },
-      { label: 'Battery Waste EPR Support', href: '/services/epr-battery-solutions' },
-      { label: 'Recycling & Annual Returns', href: '/services/epr-annual-returns' },
-      { label: 'Brand Owner Registration', href: '/services/brand-owner-epr' },
-    ],
-    alt: true,
-  },
-  {
-    heading: 'Legal Metrology & LMPC',
-    sub: 'Comprehensive Legal Metrology and LMPC support for importers, packers and manufacturers.',
-    items: [
-      { label: 'LMPC Importer Registration', href: '/services/lmpc-registration-consultants' },
-      { label: 'Legal Metrology Packaging Approvals', href: '/services/legal-metrology-certification' },
-      { label: 'Model Approval & Stamping', href: '/services/legal-metrology-model-approval' },
-      { label: 'Label Compliance Audit', href: '/services/label-compliance-audit' },
-    ],
-  },
+  // {
+  //   heading: 'EPR & Waste Management',
+  //   sub: 'Specialised EPR and waste management services for plastic, e‑waste and batteries, as per CPCB/MoEFCC guidelines.',
+  //   items: [
+  //     { label: 'EPR Authorization (E‑waste)', href: '/services/epr-authorization-certificate-provider' },
+  //     { label: 'Plastic Waste EPR Registration', href: '/services/plastic-waste-management-epr-registration' },
+  //     { label: 'Battery Waste EPR Support', href: '/services/epr-battery-solutions' },
+  //     { label: 'Recycling & Annual Returns', href: '/services/epr-annual-returns' },
+  //     { label: 'Brand Owner Registration', href: '/services/brand-owner-epr' },
+  //   ],
+  //   alt: true,
+  // },
+  // {
+  //   heading: 'Legal Metrology & LMPC',
+  //   sub: 'Comprehensive Legal Metrology and LMPC support for importers, packers and manufacturers.',
+  //   items: [
+  //     { label: 'LMPC Importer Registration', href: '/services/lmpc-registration-consultants' },
+  //     { label: 'Legal Metrology Packaging Approvals', href: '/services/legal-metrology-certification' },
+  //     { label: 'Model Approval & Stamping', href: '/services/legal-metrology-model-approval' },
+  //     { label: 'Label Compliance Audit', href: '/services/label-compliance-audit' },
+  //   ],
+  // },
   {
     heading: 'Testing & NABL Lab Support',
     sub: 'EMC/EMI, RF, safety and performance testing through accredited partner labs across India.',

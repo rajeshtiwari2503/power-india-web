@@ -38,10 +38,29 @@ export default function ContactForm() {
           className={inputCls + ' resize-y'} />
       </div>
 
-      <button
-        className="w-full bg-brand-orange hover:bg-brand-navyDk text-white font-poppins font-bold text-[15px] py-3 rounded-lg transition-colors">
-        Get Free Consultation →
-      </button>
+     <button
+  className="
+    w-full
+    cursor-pointer
+    rounded-lg
+    bg-gradient-to-r
+    from-orange-500
+    to-amber-400
+    py-3
+    text-[15px]
+    font-bold
+    text-white
+    shadow-lg
+    transition-all
+    duration-300
+    hover:from-[#252b7a]
+    hover:to-[#252b7a]
+    hover:shadow-xl
+    hover:-translate-y-0.5
+  "
+>
+  Get Free Consultation →
+</button>
       <p className="text-center text-[11px] text-gray-400">🔒 Your information is 100% secure</p>
     </div>
   )
