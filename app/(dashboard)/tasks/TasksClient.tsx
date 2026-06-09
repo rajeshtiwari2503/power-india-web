@@ -1,11 +1,11 @@
- "use client";
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch, ApiError } from "@/lib/api-client";
 
 type Priority = "High" | "Medium" | "Low";
-type Status = "Pending" | "In Progress" | "Completed";
+type Status   = "Pending" | "In Progress" | "Completed";
 
 interface Task {
   _id: string;
@@ -14,26 +14,35 @@ interface Task {
   priority: Priority;
   dueDate?: string;
   notes?: string;
-  assignedTo?: { name: string };
+  assignedTo?: { _id: string; name: string };
   client?: { companyLegalName: string };
+  lead?: { leadId: string; companyName: string; stage: number; status: string };
 }
 
 const PRIORITIES: Priority[] = ["High", "Medium", "Low"];
-const STATUSES: Status[] = ["Pending", "In Progress", "Completed"];
+const STATUSES: Status[]     = ["Pending", "In Progress", "Completed"];
 
 const priorityColor: Record<Priority, string> = {
-  High: "text-red-600 bg-red-50 border-red-200",
+  High:   "text-red-600 bg-red-50 border-red-200",
   Medium: "text-orange-600 bg-orange-50 border-orange-200",
-  Low: "text-green-600 bg-green-50 border-green-200",
+  Low:    "text-green-600 bg-green-50 border-green-200",
 };
 
 const statusColor: Record<Status, string> = {
-  Pending: "text-yellow-600 bg-yellow-50",
-  "In Progress": "text-blue-600 bg-blue-50",
-  Completed: "text-green-600 bg-green-50",
+  Pending:      "text-yellow-600 bg-yellow-50",
+  "In Progress":"text-blue-600 bg-blue-50",
+  Completed:    "text-green-600 bg-green-50",
 };
 
-export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) {
+export default function TasksClient({
+  tasks: initialTasks,
+  currentUserRole,
+  currentUserId,
+}: {
+  tasks: Task[];
+  currentUserRole: string;
+  currentUserId: string;
+}) {
   const router = useRouter();
 
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
@@ -41,6 +50,8 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
   const [view, setView] = useState<"list" | "kanban">("list");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const isEmployee = currentUserRole === "Sales" || currentUserRole === "Documentation";
 
   const [form, setForm] = useState({
     title: "",
@@ -53,19 +64,13 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
     e.preventDefault();
     setSaving(true);
     setError("");
-
     try {
       await apiFetch("/api/tasks", { method: "POST", body: form });
       router.refresh();
       setShowModal(false);
     } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : "Failed to create task. Please try again.";
-      setError(message);
+      setError(err instanceof ApiError ? err.message : "Failed to create task.");
     }
-
     setSaving(false);
   };
 
@@ -73,24 +78,16 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
     setError("");
     const prev = tasks;
     setTasks((p) => p.map((t) => (t._id === taskId ? { ...t, status } : t)));
-
     try {
       await apiFetch(`/api/tasks/${taskId}`, { method: "PATCH", body: { status } });
     } catch (err) {
-      setTasks(prev); // rollback optimistic update
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : "Failed to update task. Please try again.";
-      setError(message);
+      setTasks(prev);
+      setError(err instanceof ApiError ? err.message : "Failed to update task.");
     }
   };
 
   const overdue = tasks.filter(
-    (t) =>
-      t.status !== "Completed" &&
-      t.dueDate &&
-      new Date(t.dueDate) < new Date()
+    (t) => t.status !== "Completed" && t.dueDate && new Date(t.dueDate) < new Date()
   );
 
   return (
@@ -98,13 +95,13 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Tasks</h1>
+          <h1 className="text-2xl font-bold text-slate-900">
+            {isEmployee ? "My Tasks" : "All Tasks"}
+          </h1>
           <p className="text-sm text-slate-500">
             {tasks.filter((t) => t.status === "Pending").length} pending
             {overdue.length > 0 && (
-              <span className="text-red-600 ml-2">
-                • {overdue.length} overdue
-              </span>
+              <span className="text-red-600 ml-2">• {overdue.length} overdue</span>
             )}
           </p>
         </div>
@@ -116,7 +113,7 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
           >
             {view === "list" ? "🗂 Kanban" : "📋 List"}
           </button>
-
+          {/* Employees can add tasks; Admin/Management also */}
           <button
             onClick={() => setShowModal(true)}
             className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm"
@@ -127,9 +124,7 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          {error}
-        </div>
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
       )}
 
       {/* KANBAN VIEW */}
@@ -145,55 +140,51 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
               </div>
 
               <div className="space-y-3">
-                {tasks
-                  .filter((t) => t.status === status)
-                  .map((task) => (
-                    <div
-                      key={task._id}
-                      className={`bg-white p-3 rounded-lg border-l-4 ${
-                        priorityColor[task.priority]
-                      }`}
-                    >
-                      <p className="font-semibold text-sm">{task.title}</p>
+                {tasks.filter((t) => t.status === status).map((task) => (
+                  <div
+                    key={task._id}
+                    className={`bg-white p-3 rounded-lg border-l-4 ${priorityColor[task.priority]}`}
+                  >
+                    <p className="font-semibold text-sm">{task.title}</p>
 
-                      {task.client && (
-                        <p className="text-xs text-slate-500">
-                          {task.client.companyLegalName}
-                        </p>
-                      )}
+                    {task.lead && (
+                      <p className="text-xs text-blue-500 mt-0.5">
+                        🎯 {task.lead.leadId} · {task.lead.companyName}
+                      </p>
+                    )}
 
-                      <div className="flex justify-between mt-2 text-xs">
-                        <span
-                          className={`px-2 py-1 rounded ${
-                            statusColor[task.status]
-                          }`}
-                        >
-                          {task.status}
+                    {task.client && (
+                      <p className="text-xs text-slate-500">{task.client.companyLegalName}</p>
+                    )}
+
+                    {!isEmployee && task.assignedTo && (
+                      <p className="text-xs text-slate-400 mt-0.5">👤 {task.assignedTo.name}</p>
+                    )}
+
+                    <div className="flex justify-between mt-2 text-xs">
+                      <span className={`px-2 py-1 rounded ${statusColor[task.status]}`}>
+                        {task.status}
+                      </span>
+                      {task.dueDate && (
+                        <span className="text-slate-500">
+                          📅 {new Date(task.dueDate).toLocaleDateString("en-IN")}
                         </span>
-
-                        {task.dueDate && (
-                          <span className="text-slate-500">
-                            📅{" "}
-                            {new Date(task.dueDate).toLocaleDateString(
-                              "en-IN"
-                            )}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex gap-1 mt-2">
-                        {STATUSES.filter((s) => s !== status).map((s) => (
-                          <button
-                            key={s}
-                            onClick={() => updateStatus(task._id, s)}
-                            className="text-xs px-2 py-1 border rounded bg-slate-100 hover:bg-slate-200"
-                          >
-                            → {s}
-                          </button>
-                        ))}
-                      </div>
+                      )}
                     </div>
-                  ))}
+
+                    <div className="flex gap-1 mt-2">
+                      {STATUSES.filter((s) => s !== status).map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => updateStatus(task._id, s)}
+                          className="text-xs px-2 py-1 border rounded bg-slate-100 hover:bg-slate-200"
+                        >
+                          → {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}
@@ -202,17 +193,24 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
         /* LIST VIEW */
         <div className="border rounded-xl overflow-hidden bg-white">
           <table className="w-full text-sm">
-            <thead className="bg-slate-100 text-left">
+            <thead className="bg-slate-100 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
               <tr>
                 <th className="p-3">Task</th>
-                <th className="p-3">Client</th>
+                <th className="p-3">Lead / Client</th>
+                {!isEmployee && <th className="p-3">Assigned To</th>}
                 <th className="p-3">Priority</th>
                 <th className="p-3">Due</th>
                 <th className="p-3">Status</th>
               </tr>
             </thead>
-
             <tbody>
+              {tasks.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="p-8 text-center text-slate-400">
+                    🎉 No tasks found!
+                  </td>
+                </tr>
+              )}
               {tasks.map((task) => {
                 const isOverdue =
                   task.status !== "Completed" &&
@@ -220,28 +218,40 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
                   new Date(task.dueDate) < new Date();
 
                 return (
-                  <tr key={task._id} className="border-t">
-                    <td className="p-3 font-medium">{task.title}</td>
-
-                    <td className="p-3 text-slate-500">
-                      {task.client?.companyLegalName || "—"}
+                  <tr key={task._id} className="border-t hover:bg-slate-50">
+                    <td className="p-3 font-medium">
+                      {task.title}
+                      {task.notes && (
+                        <p className="text-xs text-slate-400 mt-0.5">{task.notes}</p>
+                      )}
                     </td>
 
                     <td className="p-3">
-                      <span
-                        className={`px-2 py-1 rounded text-xs border ${
-                          priorityColor[task.priority]
-                        }`}
-                      >
+                      {task.lead && (
+                        <div>
+                          <span className="text-xs font-mono text-blue-600">{task.lead.leadId}</span>
+                          <p className="text-xs text-slate-500">{task.lead.companyName}</p>
+                        </div>
+                      )}
+                      {!task.lead && task.client && (
+                        <p className="text-xs text-slate-500">{task.client.companyLegalName}</p>
+                      )}
+                      {!task.lead && !task.client && <span className="text-slate-300">—</span>}
+                    </td>
+
+                    {!isEmployee && (
+                      <td className="p-3 text-slate-500 text-xs">
+                        {task.assignedTo?.name || "—"}
+                      </td>
+                    )}
+
+                    <td className="p-3">
+                      <span className={`px-2 py-1 rounded text-xs border ${priorityColor[task.priority]}`}>
                         {task.priority}
                       </span>
                     </td>
 
-                    <td
-                      className={`p-3 ${
-                        isOverdue ? "text-red-600 font-semibold" : ""
-                      }`}
-                    >
+                    <td className={`p-3 ${isOverdue ? "text-red-600 font-semibold" : ""}`}>
                       {task.dueDate
                         ? new Date(task.dueDate).toLocaleDateString("en-IN")
                         : "—"}
@@ -251,18 +261,10 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
                     <td className="p-3">
                       <select
                         value={task.status}
-                        onChange={(e) =>
-                          updateStatus(task._id, e.target.value as Status)
-                        }
-                        className={`px-2 py-1 rounded text-xs border ${statusColor[
-                          task.status
-                        ]}`}
+                        onChange={(e) => updateStatus(task._id, e.target.value as Status)}
+                        className={`px-2 py-1 rounded text-xs border ${statusColor[task.status]}`}
                       >
-                        {STATUSES.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
+                        {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </td>
                   </tr>
@@ -275,7 +277,7 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
 
       {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <form
             onSubmit={handleSubmit}
             className="bg-white p-6 rounded-xl w-[500px] space-y-4"
@@ -283,68 +285,44 @@ export default function TasksClient({ tasks: initialTasks }: { tasks: Task[] }) 
             <h2 className="text-lg font-bold">Add Task</h2>
 
             <input
-              className="w-full border p-2 rounded"
-              placeholder="Title"
+              className="w-full border p-2 rounded text-sm"
+              placeholder="Title *"
+              required
               value={form.title}
-              onChange={(e) =>
-                setForm({ ...form, title: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
             />
 
             <div className="grid grid-cols-2 gap-2">
               <select
-                className="border p-2 rounded"
+                className="border p-2 rounded text-sm"
                 value={form.priority}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    priority: e.target.value as Priority,
-                  })
-                }
+                onChange={(e) => setForm({ ...form, priority: e.target.value as Priority })}
               >
-                {PRIORITIES.map((p) => (
-                  <option key={p}>{p}</option>
-                ))}
+                {PRIORITIES.map((p) => <option key={p}>{p}</option>)}
               </select>
 
               <input
                 type="date"
-                className="border p-2 rounded"
+                className="border p-2 rounded text-sm"
                 value={form.dueDate}
-                onChange={(e) =>
-                  setForm({ ...form, dueDate: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
               />
             </div>
 
             <textarea
-              className="w-full border p-2 rounded"
+              className="w-full border p-2 rounded text-sm"
               placeholder="Notes"
               value={form.notes}
-              onChange={(e) =>
-                setForm({ ...form, notes: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
             />
 
             {error && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                {error}
-              </div>
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
             )}
 
             <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="px-3 py-2 border rounded"
-              >
-                Cancel
-              </button>
-
-              <button
-                disabled={saving}
-                className="px-3 py-2 bg-blue-600 text-white rounded"
-              >
+              <button type="button" onClick={() => setShowModal(false)} className="px-3 py-2 border rounded text-sm">Cancel</button>
+              <button disabled={saving} className="px-3 py-2 bg-blue-600 text-white rounded text-sm">
                 {saving ? "Saving..." : "Create"}
               </button>
             </div>

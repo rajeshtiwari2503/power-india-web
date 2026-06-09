@@ -1,231 +1,66 @@
-//  import { connectDB } from "@/lib/db";
-// import { Certification } from "@/models";
-// import { NextResponse } from "next/server";
-// import type { NextRequest } from "next/server";
-// import { z } from "zod";
-// import mongoose from "mongoose";
-
-// /**
-//  * ---------------------------
-//  * ZOD VALIDATION SCHEMA
-//  * ---------------------------
-//  */
-// const updateCertificationSchema = z.object({
-//   currentStage: z.string().optional(),
-//   status: z.enum(["Active", "Inactive", "Completed"]).optional(),
-//   renewalDate: z.string().optional(),
-//   notes: z.string().optional(),
-// });
-
-// /**
-//  * ---------------------------
-//  * SAFE RESPONSE HELPERS
-//  * ---------------------------
-//  */
-// const success = (data: any, status = 200) =>
-//   NextResponse.json({ success: true, data }, { status });
-
-// const error = (message: string, status = 400) =>
-//   NextResponse.json({ success: false, error: message }, { status });
-
-// /**
-//  * ---------------------------
-//  * PATCH - UPDATE CERTIFICATION
-//  * ---------------------------
-//  */
-// export async function PATCH(
-//   req: NextRequest,
-//   { params }: { params: { id: string } }
-// ) {
-//   try {
-//     await connectDB();
-
-//     const { id } = params;
-
-//     // Validate Mongo ID
-//     if (!mongoose.Types.ObjectId.isValid(id)) {
-//       return error("Invalid certification ID", 400);
-//     }
-
-//     // Parse body
-//     const body = await req.json();
-
-//     // Validate input
-//     const parsed = updateCertificationSchema.safeParse(body);
-
-//     if (!parsed.success) {
-//       return error(parsed.error.issues[0].message, 422);
-//     }
-
-//     // 🔐 (Optional) AUTH CHECK PLACEHOLDER
-//     // const session = await auth();
-//     // if (!session || session.user.role !== "admin") {
-//     //   return error("Unauthorized", 401);
-//     // }
-
-//     const updated = await Certification.findByIdAndUpdate(
-//       id,
-//       { $set: parsed.data },
-//       {
-//         new: true,
-//         runValidators: true,
-//       }
-//     );
-
-//     if (!updated) {
-//       return error("Certification not found", 404);
-//     }
-
-//     return success(updated);
-//   } catch (err) {
-//     console.error("PATCH_CERT_ERROR:", err);
-//     return error("Internal server error", 500);
-//   }
-// }
-
-// /**
-//  * ---------------------------
-//  * DELETE - REMOVE CERTIFICATION
-//  * ---------------------------
-//  */
-// export async function DELETE(
-//   req: NextRequest,
-//   { params }: { params: { id: string } }
-// ) {
-//   try {
-//     await connectDB();
-
-//     const { id } = params;
-
-//     if (!mongoose.Types.ObjectId.isValid(id)) {
-//       return error("Invalid certification ID", 400);
-//     }
-
-//     // 🔐 AUTH CHECK (optional)
-//     // const session = await auth();
-//     // if (!session || session.user.role !== "admin") {
-//     //   return error("Unauthorized", 401);
-//     // }
-
-//     const deleted = await Certification.findByIdAndDelete(id);
-
-//     if (!deleted) {
-//       return error("Certification not found", 404);
-//     }
-
-//     return success({ deletedId: id });
-//   } catch (err) {
-//     console.error("DELETE_CERT_ERROR:", err);
-//     return error("Internal server error", 500);
-//   }
-// }
-
 import { connectDB } from "@/lib/db";
 import { Certification } from "@/models";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { z } from "zod";
-import mongoose from "mongoose";
+import { auth } from "@/lib/auth";
 
-/**
- * ---------------------------
- * ZOD VALIDATION SCHEMA
- * ---------------------------
- */
-const updateCertificationSchema = z.object({
-  currentStage: z.string().optional(),
-  status: z.enum(["Active", "Inactive", "Completed"]).optional(),
-  renewalDate: z.string().optional(),
-  notes: z.string().optional(),
-});
+const ok  = (data: any, s = 200) => NextResponse.json({ success: true, data }, { status: s });
+const err = (msg: string, s = 400) => NextResponse.json({ success: false, error: msg }, { status: s });
 
-/**
- * ---------------------------
- * SAFE RESPONSE HELPERS
- * ---------------------------
- */
-const success = (data: any, status = 200) =>
-  NextResponse.json({ success: true, data }, { status });
+type Params = { params: Promise<{ id: string }> };
 
-const error = (message: string, status = 400) =>
-  NextResponse.json({ success: false, error: message }, { status });
-
-/**
- * ---------------------------
- * PATCH - UPDATE CERTIFICATION
- * ---------------------------
- */
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: Params) {
   try {
+    const session = await auth();
+    if (!session) return err("Unauthorized", 401);
     await connectDB();
-
     const { id } = await params;
-
-    // Validate Mongo ID
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return error("Invalid certification ID", 400);
-    }
-
-    // Parse body
-    const body = await req.json();
-
-    // Validate input
-    const parsed = updateCertificationSchema.safeParse(body);
-
-    if (!parsed.success) {
-      return error(parsed.error.issues[0].message, 422);
-    }
-
-    const updated = await Certification.findByIdAndUpdate(
-      id,
-      { $set: parsed.data },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-
-    if (!updated) {
-      return error("Certification not found", 404);
-    }
-
-    return success(updated);
-  } catch (err) {
-    console.error("PATCH_CERT_ERROR:", err);
-    return error("Internal server error", 500);
-  }
+    const cert = await Certification.findById(id)
+      .populate("client", "companyLegalName clientId")
+      .populate("assignedConsultant", "name");
+    if (!cert) return err("Not found", 404);
+    return ok(cert);
+  } catch { return err("Failed", 500); }
 }
 
-/**
- * ---------------------------
- * DELETE - REMOVE CERTIFICATION
- * ---------------------------
- */
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: Params) {
   try {
+    const session = await auth();
+    if (!session) return err("Unauthorized", 401);
     await connectDB();
-
     const { id } = await params;
+    const body = await req.json();
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return error("Invalid certification ID", 400);
+    // Auto-calculate progressPercent from stage if not provided
+    const STAGE_PROGRESS: Record<string, number> = {
+      "Documents Pending": 8, "Application Preparation": 20,
+      "Application Filed": 35, "Query Raised": 45,
+      "Testing in Progress": 58, "Factory Audit": 70,
+      "Approval Under Process": 82, "Certificate Granted": 100, "Closed": 100,
+    };
+
+    if (body.currentStage && !body.progressPercent) {
+      body.progressPercent = STAGE_PROGRESS[body.currentStage] || 0;
     }
 
-    const deleted = await Certification.findByIdAndDelete(id);
+    const cert = await Certification.findByIdAndUpdate(id, { $set: body }, { new: true, runValidators: true })
+      .populate("client", "companyLegalName clientId")
+      .populate("assignedConsultant", "name");
+    if (!cert) return err("Not found", 404);
+    return ok(cert);
+  } catch { return err("Failed to update", 500); }
+}
 
-    if (!deleted) {
-      return error("Certification not found", 404);
-    }
-
-    return success({ deletedId: id });
-  } catch (err) {
-    console.error("DELETE_CERT_ERROR:", err);
-    return error("Internal server error", 500);
-  }
+export async function DELETE(req: NextRequest, { params }: Params) {
+  try {
+    const session = await auth();
+    if (!session) return err("Unauthorized", 401);
+    const sessionUser = session.user as any;
+    if (sessionUser?.role !== "Admin") return err("Forbidden", 403);
+    await connectDB();
+    const { id } = await params;
+    const cert = await Certification.findByIdAndDelete(id);
+    if (!cert) return err("Not found", 404);
+    return ok({ deleted: true });
+  } catch { return err("Failed to delete", 500); }
 }

@@ -1,35 +1,42 @@
 import { connectDB } from "@/lib/db";
-import { Certification } from "@/models";
+import { Invoice, Client } from "@/models";
 import { error, success } from "@/lib/api-response";
+import { auth } from "@/lib/auth";
+import { NextRequest } from "next/server";
 
 export async function GET() {
   try {
+    const session = await auth();
+    if (!session) return error("Unauthorized", 401);
+
     await connectDB();
 
-    const certs = await Certification.find()
+    const invoices = await Invoice.find()
       .sort({ createdAt: -1 })
-      .populate("client", "companyLegalName")
-      .populate("assignedConsultant", "name");
+      .populate("client", "companyLegalName clientId");
 
-    return success(certs);
+    return success(invoices);
   } catch (err) {
-    return error("Failed to fetch certifications");
+    return error("Failed to fetch invoices");
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    await connectDB();
+    const session = await auth();
+    if (!session) return error("Unauthorized", 401);
 
+    await connectDB();
     const body = await req.json();
 
-    const cert = await Certification.create({
-      ...body,
-      client: body.clientId,
-    });
+    if (!body.client) return error("client is required", 400);
 
-    return success(cert, 201);
+    const invoice = await Invoice.create(body);
+    const populated = await Invoice.findById(invoice._id)
+      .populate("client", "companyLegalName clientId");
+
+    return success(populated, 201);
   } catch (err) {
-    return error("Failed to create certification");
+    return error("Failed to create invoice");
   }
 }

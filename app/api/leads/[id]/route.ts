@@ -1,176 +1,101 @@
-//  import { connectDB } from "@/lib/db";
-// import { Lead } from "@/models";
-// import { NextRequest, NextResponse } from "next/server";
-// import { auth } from "@/lib/auth";
-
-// type Params = {
-//   params: {
-//     id: string;
-//   };
-// };
-
-// // PATCH - Update Lead
-// export async function PATCH(req: NextRequest, { params }: Params) {
-//   try {
-//     const session = await auth();
-//     if (!session) {
-//       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-//     }
-
-//     await connectDB();
-
-//     const body = await req.json();
-
-//     const lead = await Lead.findByIdAndUpdate(
-//       params.id,
-//       { $set: body },
-//       {
-//         new: true,
-//         runValidators: true,
-//       }
-//     );
-
-//     if (!lead) {
-//       return NextResponse.json(
-//         { success: false, error: "Lead not found" },
-//         { status: 404 }
-//       );
-//     }
-
-//     return NextResponse.json({
-//       success: true,
-//       data: lead,
-//     });
-//   } catch (error) {
-//     return NextResponse.json(
-//       { success: false, error: "Failed to update lead" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-// // DELETE - Remove Lead
-// export async function DELETE(req: NextRequest, { params }: Params) {
-//   try {
-//     const session = await auth();
-//     if (!session) {
-//       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-//     }
-
-//     await connectDB();
-
-//     const lead = await Lead.findByIdAndDelete(params.id);
-
-//     if (!lead) {
-//       return NextResponse.json(
-//         { success: false, error: "Lead not found" },
-//         { status: 404 }
-//       );
-//     }
-
-//     return NextResponse.json({
-//       success: true,
-//       message: "Lead deleted successfully",
-//     });
-//   } catch (error) {
-//     return NextResponse.json(
-//       { success: false, error: "Failed to delete lead" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-
 import { connectDB } from "@/lib/db";
 import { Lead } from "@/models";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 
-type Params = {
-  params: Promise<{
-    id: string;
-  }>;
-};
+type Params = { params: Promise<{ id: string }> };
 
-// PATCH - Update Lead
+const ok  = (data: any, s = 200) => NextResponse.json({ success: true,  data  }, { status: s });
+const err = (msg: string, s = 400) => NextResponse.json({ success: false, error: msg }, { status: s });
+
+// GET — single lead with full activity log
+export async function GET(req: NextRequest, { params }: Params) {
+  try {
+    const session = await auth();
+    if (!session) return err("Unauthorized", 401);
+
+    await connectDB();
+    const { id } = await params;
+
+    const lead = await Lead.findById(id)
+      .populate("assignedTo",  "name email")
+      .populate("assignedTask","title status dueDate")
+      .populate("clientId",    "clientId companyLegalName");
+
+    if (!lead) return err("Lead not found", 404);
+    return ok(lead);
+  } catch { return err("Failed to fetch lead", 500); }
+}
+
+// PATCH — update stage/status + append to activityLog
 export async function PATCH(req: NextRequest, { params }: Params) {
   try {
     const session = await auth();
-
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    if (!session) return err("Unauthorized", 401);
 
     await connectDB();
+    const { id }   = await params;
+    const body     = await req.json();
+    const userName = (session.user as any)?.name || "System";
+    const userId   = (session.user as any)?.id;
 
-    const { id } = await params;
+    // ── Stage advancement auto-rules ─────────────────────────
+    if (body.assignedTo && !body.stage)                    { body.stage = 2; if (!body.status) body.status = "Assigned"; }
+    if (body.status === "Converted"  && !body.stage)       { body.stage = 5; body.isConverted = true; }
+    if (body.status === "Rejected"   && !body.stage)       body.stage = 4;
+    if (body.status === "Lost"       && !body.stage)       body.stage = 4;
+    if (body.status === "Nurturing"  && !body.stage)       body.stage = 4;
+    if (body.status === "Matured"    && !body.stage)       body.stage = 4;
+    if (body.status === "Convinced"  && !body.stage)       body.stage = 4;
+    if (body.stage === 9)                                  { body.status = "Converted"; body.isConverted = true; }
 
-    const body = await req.json();
+    // ── Build activity log entry ──────────────────────────────
+    const noteText = body.note || body.remarks || "";
+
+    const logEntry = {
+      stage:    body.stage,
+      status:   body.status,
+      note:     noteText || `Stage ${body.stage} — ${body.status || "updated"}`,
+      doneBy:   userName,
+      doneById: userId,
+    };
+
+    // ── Build update object ───────────────────────────────────
+    const { note, ...updateFields } = body; // remove note from top-level
+
+    // remarks = latest note for quick display
+    if (noteText) updateFields.remarks = noteText;
 
     const lead = await Lead.findByIdAndUpdate(
       id,
-      { $set: body },
       {
-        new: true,
-        runValidators: true,
-      }
-    );
+        $set:  updateFields,
+        $push: { activityLog: logEntry },
+      },
+      { new: true, runValidators: true }
+    )
+      .populate("assignedTo",  "name")
+      .populate("assignedTask","title status")
+      .populate("clientId",    "clientId companyLegalName");
 
-    if (!lead) {
-      return NextResponse.json(
-        { success: false, error: "Lead not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: lead,
-    });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: "Failed to update lead" },
-      { status: 500 }
-    );
+    if (!lead) return err("Lead not found", 404);
+    return ok(lead);
+  } catch (e) {
+    console.error(e);
+    return err("Failed to update lead", 500);
   }
 }
 
-// DELETE - Remove Lead
+// DELETE
 export async function DELETE(req: NextRequest, { params }: Params) {
   try {
     const session = await auth();
-
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    if (!session) return err("Unauthorized", 401);
 
     await connectDB();
-
     const { id } = await params;
-
-    const lead = await Lead.findByIdAndDelete(id);
-
-    if (!lead) {
-      return NextResponse.json(
-        { success: false, error: "Lead not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "Lead deleted successfully",
-    });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: "Failed to delete lead" },
-      { status: 500 }
-    );
-  }
+    const lead   = await Lead.findByIdAndDelete(id);
+    if (!lead) return err("Lead not found", 404);
+    return ok({ deleted: true });
+  } catch { return err("Failed to delete lead", 500); }
 }

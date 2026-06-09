@@ -1,152 +1,70 @@
- export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 import { connectDB } from "@/lib/db";
 import { Lead, Client, Certification, Invoice } from "@/models";
 import ReportsClient from "./ReportsClient";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 async function getReportData() {
   await connectDB();
-
   const now = new Date();
 
-  // Last 6 months
   const months = Array.from({ length: 6 }).map((_, i) => {
     const date = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
-
     return {
-      label: date.toLocaleString("en-IN", {
-        month: "short",
-        year: "2-digit",
-      }),
+      label: date.toLocaleString("en-IN", { month: "short", year: "2-digit" }),
       start: date,
       end: new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59),
     };
   });
 
-  const monthlyLeads = await Promise.all(
-    months.map(async (m) => ({
+  const [monthlyLeads, monthlyRevenue, certsByType, certsByStage,
+    leadsBySource, leadsByPriority, topClients, paymentSummary, renewalSoon,
+    totalLeads, convertedLeads] = await Promise.all([
+    Promise.all(months.map(async (m) => ({
       month: m.label,
-      total: await Lead.countDocuments({
-        createdAt: { $gte: m.start, $lte: m.end },
-      }),
-      converted: await Lead.countDocuments({
-        createdAt: { $gte: m.start, $lte: m.end },
-        status: "Converted",
-      }),
-      lost: await Lead.countDocuments({
-        createdAt: { $gte: m.start, $lte: m.end },
-        status: "Lost",
-      }),
-    }))
-  );
+      total: await Lead.countDocuments({ createdAt: { $gte: m.start, $lte: m.end } }),
+      converted: await Lead.countDocuments({ createdAt: { $gte: m.start, $lte: m.end }, status: "Converted" }),
+      lost: await Lead.countDocuments({ createdAt: { $gte: m.start, $lte: m.end }, status: "Lost" }),
+    }))),
 
-  const monthlyRevenue = await Promise.all(
-    months.map(async (m) => {
+    Promise.all(months.map(async (m) => {
       const res = await Invoice.aggregate([
-        {
-          $match: {
-            createdAt: { $gte: m.start, $lte: m.end },
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            revenue: { $sum: "$paidAmount" },
-            invoiced: { $sum: "$totalAmount" },
-          },
-        },
+        { $match: { createdAt: { $gte: m.start, $lte: m.end } } },
+        { $group: { _id: null, revenue: { $sum: "$paidAmount" }, invoiced: { $sum: "$totalAmount" } } },
       ]);
+      return { month: m.label, revenue: res[0]?.revenue || 0, invoiced: res[0]?.invoiced || 0 };
+    })),
 
-      return {
-        month: m.label,
-        revenue: res[0]?.revenue || 0,
-        invoiced: res[0]?.invoiced || 0,
-      };
-    })
-  );
+    Certification.aggregate([{ $group: { _id: "$certificationType", count: { $sum: 1 } } }, { $sort: { count: -1 } }]),
+    Certification.aggregate([{ $group: { _id: "$currentStage", count: { $sum: 1 } } }, { $sort: { count: -1 } }]),
+    Lead.aggregate([{ $group: { _id: "$source", count: { $sum: 1 } } }, { $sort: { count: -1 } }]),
+    Lead.aggregate([{ $group: { _id: "$priority", count: { $sum: 1 } } }]),
 
-  const certsByType = await Certification.aggregate([
-    { $group: { _id: "$certificationType", count: { $sum: 1 } } },
-    { $sort: { count: -1 } },
+    Certification.aggregate([
+      { $group: { _id: "$client", certCount: { $sum: 1 } } },
+      { $sort: { certCount: -1 } }, { $limit: 5 },
+      { $lookup: { from: "clients", localField: "_id", foreignField: "_id", as: "client" } },
+      { $unwind: { path: "$client", preserveNullAndEmptyArrays: true } },
+      { $project: { name: "$client.companyLegalName", certCount: 1 } },
+    ]),
+
+    Invoice.aggregate([{ $group: { _id: "$paymentStatus", count: { $sum: 1 }, amount: { $sum: "$totalAmount" } } }]),
+
+    Certification.find({
+      renewalDate: { $gte: now, $lte: new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000) },
+    }).populate("client", "companyLegalName").sort({ renewalDate: 1 }).limit(10).lean(),
+
+    Lead.countDocuments(),
+    Lead.countDocuments({ status: "Converted" }),
   ]);
-
-  const certsByStage = await Certification.aggregate([
-    { $group: { _id: "$currentStage", count: { $sum: 1 } } },
-    { $sort: { count: -1 } },
-  ]);
-
-  const leadsBySource = await Lead.aggregate([
-    { $group: { _id: "$source", count: { $sum: 1 } } },
-    { $sort: { count: -1 } },
-  ]);
-
-  const leadsByPriority = await Lead.aggregate([
-    { $group: { _id: "$priority", count: { $sum: 1 } } },
-  ]);
-
-  const topClients = await Certification.aggregate([
-    { $group: { _id: "$client", certCount: { $sum: 1 } } },
-    { $sort: { certCount: -1 } },
-    { $limit: 5 },
-    {
-      $lookup: {
-        from: "clients",
-        localField: "_id",
-        foreignField: "_id",
-        as: "client",
-      },
-    },
-    { $unwind: { path: "$client", preserveNullAndEmptyArrays: true } },
-    {
-      $project: {
-        name: "$client.companyLegalName",
-        certCount: 1,
-      },
-    },
-  ]);
-
-  const totalLeads = await Lead.countDocuments();
-  const convertedLeads = await Lead.countDocuments({
-    status: "Converted",
-  });
-
-  const conversionRate =
-    totalLeads > 0
-      ? ((convertedLeads / totalLeads) * 100).toFixed(1)
-      : "0";
-
-  const paymentSummary = await Invoice.aggregate([
-    {
-      $group: {
-        _id: "$paymentStatus",
-        count: { $sum: 1 },
-        amount: { $sum: "$totalAmount" },
-      },
-    },
-  ]);
-
-  const renewalSoon = await Certification.find({
-    renewalDate: {
-      $gte: now,
-      $lte: new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000),
-    },
-  })
-    .populate("client", "companyLegalName")
-    .sort({ renewalDate: 1 })
-    .limit(10)
-    .lean();
 
   return {
-    monthlyLeads,
-    monthlyRevenue,
-    certsByType,
-    certsByStage,
-    leadsBySource,
-    leadsByPriority,
-    topClients,
-    conversionRate,
-    paymentSummary,
+    monthlyLeads, monthlyRevenue, certsByType, certsByStage,
+    leadsBySource, leadsByPriority, topClients, paymentSummary,
     renewalSoon: JSON.parse(JSON.stringify(renewalSoon)),
+    conversionRate: totalLeads > 0 ? ((convertedLeads / totalLeads) * 100).toFixed(1) : "0",
     totals: {
       leads: totalLeads,
       clients: await Client.countDocuments({ isActive: true }),
@@ -157,9 +75,9 @@ async function getReportData() {
 }
 
 export default async function ReportsPage() {
-  const data = await getReportData();
+  const session = await auth();
+  if (!session) redirect("/login");
 
-  return (
-    <ReportsClient data={JSON.parse(JSON.stringify(data))} />
-  );
+  const data = await getReportData();
+  return <ReportsClient data={JSON.parse(JSON.stringify(data))} />;
 }
