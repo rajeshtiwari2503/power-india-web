@@ -26,9 +26,10 @@
 // }
 
 import { connectDB } from "@/lib/db";
-import { Notification } from "@/models/Notification";
+ 
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { Notification } from "@/models";
 
 export const runtime = "nodejs";
 

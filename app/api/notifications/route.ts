@@ -96,7 +96,7 @@
 
 
 import { connectDB } from "@/lib/db";
-import { Notification } from "@/models/Notification";
+import { Notification } from "@/models";
 import { auth } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 

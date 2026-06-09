@@ -201,8 +201,8 @@
 
  
  import { connectDB } from "@/lib/db";
-import { Certification } from "@/models";
-import { Notification } from "@/models/Notification";
+import { Certification, Notification } from "@/models";
+ 
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
