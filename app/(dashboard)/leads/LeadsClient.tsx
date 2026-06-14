@@ -228,7 +228,7 @@ function AssignTaskModal({ lead, users, onClose, onSave }: {
   const [saving, setSaving]         = useState(false);
   const [error, setError]           = useState("");
 
-  const employees = users.filter(u=>["Sales","Documentation","Accounts"].includes(u.role));
+  const employees = users.filter(u=>["Sales","Documentation","Accounts","Management"].includes(u.role));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -253,10 +253,10 @@ function AssignTaskModal({ lead, users, onClose, onSave }: {
         <div>
           <label className={lbl}>Employee Select karo *</label>
           <select required className={inp} value={assignedTo} onChange={e=>setAssignedTo(e.target.value)}>
-            <option value="">— Employee Choose karo —</option>
+            <option value="">—  Choose Employee —</option>
             {employees.map(u=><option key={u._id} value={u._id}>{u.name} ({u.role})</option>)}
           </select>
-          {employees.length===0 && <p className="text-xs text-orange-500 mt-1">⚠ Koi active employee nahi mila.</p>}
+          {employees.length===0 && <p className="text-xs text-orange-500 mt-1">⚠  Any employee not available.</p>}
         </div>
         <div>
           <label className={lbl}>Task Title *</label>

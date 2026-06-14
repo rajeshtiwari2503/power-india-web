@@ -19,7 +19,7 @@ export default async function LeadsPage() {
   await connectDB();
 
   // Employees only see leads assigned to them
-  const isEmployee = role === "Sales" || role === "Documentation";
+  const isEmployee = role === "Sales" || role === "Documentation"|| role === "Management";
   const query = isEmployee ? { assignedTo: userId } : {};
 
   const leads = await Lead.find(query)

@@ -116,13 +116,43 @@ function GlobalSearch() {
     </div>
   );
 }
-
-export default function Header({ user }: { user?: any }) {
+interface HeaderProps {
+  user?: any;
+  onMenuClick?: () => void;
+}
+export default function Header({
+  user,
+  onMenuClick,
+}: HeaderProps) {
   return (
-    <header className="bg-white text-black border-b border-slate-200 px-6 py-3.5 flex items-center gap-4 sticky top-0 z-40">
+    // <header className="bg-white text-black border-b border-slate-200 px-6 py-3 flex items-center gap-4 sticky top-0 z-40">
+  <header
+  className="
+    fixed
+    top-0
+    left-0
+    lg:left-64
+    right-0
+    h-16
+    bg-white
+    border-b
+    border-slate-200
+    z-40
+    flex
+    items-center
+    px-4
+    lg:px-6
+  "
+>
+        <button
+    onClick={onMenuClick}
+    className="lg:hidden text-2xl text-slate-700"
+  >
+    ☰
+  </button>
       <GlobalSearch />
 
-      <div className="flex items-center gap-3 ml-auto">
+      <div className="flex items-center gap-1 md:gap-3 ml-auto">
         {/* Date */}
         <div className="text-xs text-slate-400 hidden sm:block">
           {new Date().toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}

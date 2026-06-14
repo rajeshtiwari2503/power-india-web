@@ -57,13 +57,13 @@ const authOptions: NextAuthOptions = {
           });
 
           if (!user) {
-            throw new Error("Galat email ya password");
+            throw new Error("Wrong email or password");
           }
 
           // Block users who explicitly have isRegistered=false
           // (undefined/null means old user — allow them to login)
           if (user.isRegistered === false && user.password?.length < 20) {
-            throw new Error("Pehle invite email ka link use karke account activate karein");
+            throw new Error("Please use the invite email link to activate your account");
           }
 
           const isValid = await bcrypt.compare(
@@ -72,7 +72,7 @@ const authOptions: NextAuthOptions = {
           );
 
           if (!isValid) {
-            throw new Error("Galat email ya password");
+            throw new Error("Wrong email or password");
           }
 
           return {
