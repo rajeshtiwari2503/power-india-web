@@ -1,28 +1,28 @@
- import { connectDB } from "@/lib/db";
+import { connectDB } from "@/lib/db";
 import { Lead, Client, Certification } from "@/models";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { error } from "@/lib/api-response";
 
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
+  // 🔒 Auth check — this was missing before
+  const session = await auth();
+  if (!session) return error("Unauthorized", 401);
+
   try {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get("q")?.trim();
 
-    // 🔎 basic validation
     if (!q || q.length < 2) {
-      return NextResponse.json({
-        leads: [],
-        clients: [],
-        certifications: [],
-      });
+      return NextResponse.json({ leads: [], clients: [], certifications: [] });
     }
 
     await connectDB();
 
     const regex = new RegExp(q, "i");
 
-    // ⚡ parallel DB queries (optimized)
     const [leads, clients, certifications] = await Promise.all([
       Lead.find(
         {
@@ -67,36 +67,31 @@ export async function GET(req: NextRequest) {
         .lean(),
     ]);
 
-    // 📦 normalized response (frontend-friendly)
     return NextResponse.json({
       leads: leads.map((l: any) => ({
-        _id: l._id,
+        _id:   l._id,
         title: l.companyName,
-        sub: `${l.interestedService || "-"} • ${l.status} • ${l.priority}`,
-        type: "lead",
+        sub:   `${l.interestedService || "-"} • ${l.status} • ${l.priority}`,
+        type:  "lead",
       })),
 
       clients: clients.map((c: any) => ({
-        _id: c._id,
+        _id:   c._id,
         title: c.companyLegalName,
-        sub: `${c.clientId} • ${c.category || "-"}`,
-        type: "client",
+        sub:   `${c.clientId} • ${c.category || "-"}`,
+        type:  "client",
       })),
 
       certifications: certifications.map((c: any) => ({
-        _id: c._id,
-        title: c.applicationId,
+        _id:     c._id,
+        title:   c.applicationId,
         company: c.client?.companyLegalName || "",
-        sub: `${c.certificationType} • ${c.currentStage}`,
-        type: "certification",
+        sub:     `${c.certificationType} • ${c.currentStage}`,
+        type:    "certification",
       })),
     });
-  } catch (error) {
-    console.error("SEARCH API ERROR:", error);
-
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error("SEARCH API ERROR:", err);
+    return error("Internal Server Error", 500);
   }
 }

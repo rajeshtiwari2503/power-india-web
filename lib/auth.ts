@@ -8,20 +8,7 @@ import type { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { connectDB } from "./db";
 import bcrypt from "bcryptjs";
-import mongoose from "mongoose";
-
-const UserSchema = new mongoose.Schema({
-  name:         { type: String },
-  email:        { type: String, unique: true, lowercase: true },
-  password:     { type: String },
-  role:         { type: String, default: "Sales" },
-  isActive:     { type: Boolean, default: true },
-  isRegistered: { type: Boolean, default: false },
-});
-
-function getUser() {
-  return mongoose.models.User || mongoose.model("User", UserSchema);
-}
+import { User } from "@/models"; // single source-of-truth schema
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -52,8 +39,6 @@ export const authOptions: NextAuthOptions = {
           }
 
           await connectDB();
-          const User = getUser();
-
           const user = await User.findOne({
             email:    String(credentials.email).toLowerCase().trim(),
             isActive: true,

@@ -1,4 +1,25 @@
- import mongoose, { InferSchemaType, Model } from "mongoose";
+import mongoose, { InferSchemaType, Model } from "mongoose";
+import { encrypt, decrypt } from "@/lib/encryption";
+
+/* =========================
+   COUNTER (atomic IDs)
+========================= */
+const counterSchema = new mongoose.Schema({
+  _id:  { type: String, required: true },
+  seq:  { type: Number, default: 0 },
+});
+
+const Counter: Model<any> =
+  mongoose.models.Counter || mongoose.model("Counter", counterSchema);
+
+async function nextSeq(name: string): Promise<number> {
+  const doc = await Counter.findByIdAndUpdate(
+    name,
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+  return doc.seq;
+}
 
 /* =========================
    USER
@@ -144,12 +165,12 @@ const leadSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Auto Lead ID
+// Auto Lead ID — atomic, race-condition safe
 leadSchema.pre("save", async function () {
   if (!this.leadId) {
-    const count = await mongoose.model("Lead").countDocuments();
-    const year  = new Date().getFullYear();
-    this.leadId = `L-${year}-${String(count + 1).padStart(3, "0")}`;
+    const seq  = await nextSeq("lead");
+    const year = new Date().getFullYear();
+    this.leadId = `L-${year}-${String(seq).padStart(3, "0")}`;
   }
 });
 
@@ -202,10 +223,9 @@ const clientSchema = new mongoose.Schema(
 // =========================
 clientSchema.pre("save", async function () {
   if (!this.clientId) {
-    const count = await mongoose.model("Client").countDocuments();
+    const seq  = await nextSeq("client");
     const year = new Date().getFullYear();
-
-    this.clientId = `C-${year}-${String(count + 1).padStart(3, "0")}`;
+    this.clientId = `C-${year}-${String(seq).padStart(3, "0")}`;
   }
 });
 
@@ -275,7 +295,7 @@ const certificationSchema = new mongoose.Schema(
       max: 100,
     },
 
-    govPortalLogin: { type: String }, // ideally encrypted
+    govPortalLogin: { type: String }, // stored AES-256-GCM encrypted via lib/encryption.ts
     labDetails: { type: String },
 
     applicationDate: { type: Date },
@@ -304,13 +324,26 @@ const certificationSchema = new mongoose.Schema(
 // AUTO APPLICATION ID
 // =========================
 certificationSchema.pre("save", async function () {
+  // Auto Application ID
   if (!this.applicationId) {
-    const count = await mongoose.model("Certification").countDocuments();
+    const seq  = await nextSeq("certification");
     const year = new Date().getFullYear();
-
-    this.applicationId = `APP-${year}-${String(count + 1).padStart(4, "0")}`;
+    this.applicationId = `APP-${year}-${String(seq).padStart(4, "0")}`;
+  }
+  // Encrypt govPortalLogin before persisting
+  if (this.isModified("govPortalLogin") && this.govPortalLogin) {
+    // Only encrypt if not already encrypted (no ":" separator in raw passwords)
+    if (!this.govPortalLogin.includes(":")) {
+      this.govPortalLogin = encrypt(this.govPortalLogin as string);
+    }
   }
 });
+
+// Decrypt govPortalLogin when reading (call .decryptPortalLogin() on a doc)
+certificationSchema.methods.decryptPortalLogin = function (): string | null {
+  if (!this.govPortalLogin) return null;
+  return decrypt(this.govPortalLogin as string);
+};
 
  
 export type CertificationType = InferSchemaType<typeof certificationSchema>;
@@ -414,10 +447,9 @@ const invoiceSchema = new mongoose.Schema(
 // =========================
 invoiceSchema.pre("save", async function () {
   if (!this.invoiceNumber) {
-    const count = await mongoose.model("Invoice").countDocuments();
+    const seq  = await nextSeq("invoice");
     const year = new Date().getFullYear();
-
-    this.invoiceNumber = `INV-${year}-${String(count + 1).padStart(4, "0")}`;
+    this.invoiceNumber = `INV-${year}-${String(seq).padStart(4, "0")}`;
   }
 
   this.totalAmount =
